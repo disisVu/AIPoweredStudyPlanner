@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
-import { NavBar } from '~/components/Header'
-import { colors } from '~/styles'
+import { NavBar } from '@/components/Header'
+import { colors } from '@/styles'
 
 export function MainLayout() {
   return (

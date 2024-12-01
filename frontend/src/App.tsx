@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import '~/App.css'
-import { MainLayout } from '~/layouts'
-import { HomePage } from '~/pages'
+import { AuthenticationLayout, MainLayout } from '@/layouts'
+import { HomePage, LoginPage, RegistrationPage } from '@/pages'
+import '@/App.css'
 
 function App() {
   return (
@@ -9,6 +9,10 @@ function App() {
       <Routes>
         <Route path='/' element={<MainLayout />}>
           <Route index element={<HomePage />} />
+        </Route>
+        <Route path='/auth' element={<AuthenticationLayout />}>
+          <Route path='login' element={<LoginPage />} />
+          <Route path='registration' element={<RegistrationPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { useHover } from '~/hooks'
-import { colors } from '~/styles'
+import { useHover } from '@/hooks'
+import { colors } from '@/styles'
 
 export function NavBar() {
   const navigate = useNavigate()

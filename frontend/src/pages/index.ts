@@ -1,1 +1,2 @@
-export * from '~/pages/HomePage'
+export * from '@/pages/Home'
+export * from '@/pages/Authentication'

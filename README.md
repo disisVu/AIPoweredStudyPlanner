@@ -1,2 +1,2 @@
-# AWAD-Final
+# AI-Powered Study Planner
  

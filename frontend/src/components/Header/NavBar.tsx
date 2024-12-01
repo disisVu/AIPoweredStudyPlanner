@@ -15,10 +15,10 @@ export function NavBar() {
       className='sticky top-0 z-20 flex h-16 flex-row items-center justify-between gap-4 bg-white py-3 pl-6 pr-10'
     >
       <span style={{ color: colors.primary }} className='cursor-pointer font-medium' onClick={navigateToHome}>
-        Google Calendar
+        AI-Powered Study Planner
       </span>
       <div className='flex flex-row items-center gap-10'>
-        <NavBarHyperlink label='Calendar' route='/calendar' />
+        <NavBarHyperlink label='Temp' route='/' />
         {/* Logout button */}
         <div style={{ backgroundColor: colors.primary }} className='cursor-pointer rounded-md px-4 py-2'>
           <span className='font-medium text-white'>Log Out</span>

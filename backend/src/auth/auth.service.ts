@@ -6,7 +6,7 @@ import { RegisterDto } from './dto/autg.dto';
 export class AuthService {
   constructor() {
     const firebaseCredentials = Buffer.from(
-      process.env.FIREBASE_CREDENTIALS_BASE64,
+      process.env.FIREBASE_CRENDENTIALS,
       'base64',
     ).toString('utf-8');
 

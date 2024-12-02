@@ -1,11 +1,11 @@
 import { Controller, Get, UseGuards, Req, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FirebaseAuthGuard } from './auth.guard';
-import { RegisterDto } from './dto/autg.dto';
+import { LoginDto, RegisterDto } from './dto/autg.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @UseGuards(FirebaseAuthGuard)
   @Get('profile')
@@ -19,5 +19,10 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
+  }
+
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 }

@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import { RegisterDto } from './dto/autg.dto';
+import { LoginDto, RegisterDto } from './dto/autg.dto';
 
 @Injectable()
 export class AuthService {
@@ -56,6 +56,32 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException(
         error.message || 'Unable to register user.',
+      );
+    }
+  }
+
+  async login(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+
+    try {
+      const user = await admin.auth().getUserByEmail(email);
+      if (!user) {
+        throw new UnauthorizedException('Invalid email or password.');
+      }
+      const idToken = await admin.auth().createCustomToken(user.uid);
+      return {
+        success: true,
+        message: 'Login successful.',
+        token: idToken, // Return a custom token
+        user: {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+        },
+      };
+    } catch (error) {
+      throw new UnauthorizedException(
+        error.message || 'Login failed. Please check your credentials.',
       );
     }
   }

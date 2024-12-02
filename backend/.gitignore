@@ -39,3 +39,6 @@ coverage/
 
 # Miscellaneous
 *.tgz
+
+# Firebase Authentication config
+src/config/firebase-service-account.json

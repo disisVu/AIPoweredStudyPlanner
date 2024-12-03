@@ -33,8 +33,31 @@ export function RegistrationModal() {
   const passwordValue = watch('password')
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onSubmit: SubmitHandler<RegistrationFormInputs> = (_data: RegistrationFormInputs) => {
-    return
+  const onSubmit: SubmitHandler<RegistrationFormInputs> = async (_data: RegistrationFormInputs) => {
+    try {
+      _setIsLoading(true)
+      const response = await fetch('http://localhost:5000/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(_data),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        alert(result.message)
+        navigateToLogin()
+      } else {
+        alert(result.message || 'Registration failed')
+      }
+    } catch (error) {
+      console.error('Error during registration:', error)
+      alert('An error occurred during registration. Please try again later.')
+    } finally {
+      _setIsLoading(false)
+    }
   }
 
   const navigateToLogin = () => {

@@ -6,6 +6,7 @@ import { ButtonFullWidth } from '@/components/Button/ButtonFullWidth'
 import { PrimaryModal } from '@/components/Modal/ModalLayouts'
 import { FormInput, PasswordInput } from '@/components/Input'
 
+import googleIcon from '@/assets/brands/google-48.png'
 import { colors } from '@/styles'
 import { emailRegex } from '@/utils'
 import { LoginFormInputs } from '@/types/form'
@@ -88,6 +89,16 @@ export function LoginModal() {
           </div>
           <div className='flex w-full flex-col items-center'>
             <ButtonFullWidth enabled={true} text='Confirm' onClick={handleSubmit(onSubmit)} isLoading={isLoading} />
+            <ButtonFullWidth
+              enabled={true}
+              text='Sign in with Google'
+              onClick={() => {}}
+              isLoading={isLoading}
+              backgroundColor='white'
+              textColor={colors.text_primary}
+              borderColor={colors.border}
+              startAdornment={googleIcon}
+            />
             <div className='flex flex-row gap-2 text-sm'>
               <span style={{ color: colors.text_secondary }}>Don't have an account?</span>
               <span

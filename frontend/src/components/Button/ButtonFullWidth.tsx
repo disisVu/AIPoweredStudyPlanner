@@ -6,19 +6,45 @@ interface ButtonFullWidthProps {
   text: string
   onClick: () => void
   isLoading?: boolean
+  backgroundColor?: string
+  textColor?: string
+  borderColor?: string
+  startAdornment?: string
+  endAdornment?: string
 }
 
-export function ButtonFullWidth({ enabled, text, onClick, isLoading = false }: ButtonFullWidthProps) {
+export function ButtonFullWidth({
+  enabled,
+  text,
+  onClick,
+  isLoading = false,
+  backgroundColor = colors.primary,
+  textColor = 'white',
+  borderColor = 'none',
+  startAdornment,
+  endAdornment
+}: ButtonFullWidthProps) {
   return (
     <div
-      className={`${enabled ? 'cursor-pointer' : ''} mb-5 flex max-h-12 w-full items-center justify-center rounded-xl py-3 hover:brightness-105`}
+      className={`${enabled ? 'cursor-pointer' : ''} mb-5 flex max-h-12 w-full items-center justify-center rounded-xl px-3 py-3 hover:shadow-md hover:brightness-105`}
       style={{
-        backgroundColor: enabled ? colors.primary : colors.button_secondary,
-        color: enabled ? 'white' : colors.text_primary
+        backgroundColor: enabled ? backgroundColor : colors.button_secondary,
+        color: enabled ? textColor : colors.text_primary,
+        border: `1px solid ${borderColor}`
       }}
       onClick={onClick}
     >
-      {isLoading ? <Loader /> : <span className='text-sm font-semibold'>{text}</span>}
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className='grid w-full grid-cols-12'>
+          <div className='col-span-1 max-w-fit'>{startAdornment && <img src={startAdornment} alt='' />}</div>
+          <div className='col-span-10 flex items-center justify-center'>
+            <span className='text-center text-sm font-semibold'>{text}</span>
+          </div>
+          <div className='col-span-1'>{startAdornment && <img src={endAdornment} alt='' />}</div>
+        </div>
+      )}
     </div>
   )
 }

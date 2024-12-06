@@ -42,6 +42,7 @@ export function PasswordInput({
           className='h-12 pr-10'
         />
         <Button
+          type='button'
           variant='ghost'
           onClick={togglePasswordVisibility}
           className='absolute right-0 top-1/2 -translate-y-1/2 transform border-none bg-transparent hover:bg-transparent focus:bg-transparent focus:outline-none active:bg-transparent'

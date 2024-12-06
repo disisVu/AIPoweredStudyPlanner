@@ -8,13 +8,14 @@ import { FormInput, PasswordInput } from '@/components/Input'
 
 import googleIcon from '@/assets/brands/google-48.png'
 import { colors } from '@/styles'
-import { emailRegex } from '@/utils'
+import { emailRegex, handleLogin } from '@/utils'
 import { LoginFormInputs } from '@/types/form'
+import { useToast } from '@/hooks/use-toast'
 
 export function LoginModal() {
   const navigate = useNavigate()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isLoading, _setIsLoading] = useState<boolean>(false)
+  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const {
     control,
@@ -27,9 +28,35 @@ export function LoginModal() {
     }
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onSubmit: SubmitHandler<LoginFormInputs> = (_data: LoginFormInputs) => {
-    return
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data: LoginFormInputs) => {
+    try {
+      setIsLoading(true)
+      const result = await handleLogin(data.email, data.password)
+      if (result.success) {
+        toast({
+          title: 'Login successfully.',
+          description: 'Proceeding to Home Page.'
+        })
+        navigateToHomepage()
+      } else {
+        toast({
+          title: 'Login failed.',
+          description: result.message
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Login failed.',
+        description: 'An error occured during login.'
+      })
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const navigateToHomepage = () => {
+    navigate('/')
   }
 
   const navigateToRegistration = () => {

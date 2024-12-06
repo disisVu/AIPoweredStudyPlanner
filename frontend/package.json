@@ -14,6 +14,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.2",
     "@reduxjs/toolkit": "^2.3.0",
     "@shadcn/ui": "^0.0.4",
     "class-variance-authority": "^0.7.1",

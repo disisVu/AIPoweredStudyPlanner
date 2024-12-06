@@ -9,11 +9,12 @@ import { PrimaryModal } from '@/components/Modal/ModalLayouts'
 import { colors } from '@/styles'
 import { computePasswordComplexity, emailRegex } from '@/utils'
 import { RegistrationFormInputs } from '@/types/form'
+import { useToast } from '@/hooks/use-toast'
 
 export function RegistrationModal() {
+  const { toast } = useToast()
   const navigate = useNavigate()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isLoading, _setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const {
     control,
@@ -32,31 +33,39 @@ export function RegistrationModal() {
 
   const passwordValue = watch('password')
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onSubmit: SubmitHandler<RegistrationFormInputs> = async (_data: RegistrationFormInputs) => {
+  const onSubmit: SubmitHandler<RegistrationFormInputs> = async (data: RegistrationFormInputs) => {
     try {
-      _setIsLoading(true)
+      setIsLoading(true)
       const response = await fetch('http://localhost:5000/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(_data),
+        body: JSON.stringify(data)
       })
 
       const result = await response.json()
 
       if (response.ok) {
-        alert(result.message)
+        toast({
+          title: 'Registration successfully.',
+          description: 'Proceeding to Login Form.'
+        })
         navigateToLogin()
       } else {
-        alert(result.message || 'Registration failed')
+        toast({
+          title: 'Registration failed.',
+          description: result.message
+        })
       }
     } catch (error) {
-      console.error('Error during registration:', error)
-      alert('An error occurred during registration. Please try again later.')
+      toast({
+        title: 'Registration failed.',
+        description: 'An error occured during registration.'
+      })
+      console.log(error)
     } finally {
-      _setIsLoading(false)
+      setIsLoading(false)
     }
   }
 

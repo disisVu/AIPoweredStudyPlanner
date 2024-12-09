@@ -8,7 +8,7 @@ import { FormInput, PasswordInput } from '@/components/Input'
 
 import googleIcon from '@/assets/brands/google-48.png'
 import { colors } from '@/styles'
-import { emailRegex, handleLogin } from '@/utils'
+import { emailRegex, loginWithEmailAndPassword, loginWithGoogle } from '@/utils'
 import { LoginFormInputs } from '@/types/form'
 import { useToast } from '@/hooks/use-toast'
 
@@ -31,7 +31,7 @@ export function LoginModal() {
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data: LoginFormInputs) => {
     try {
       setIsLoading(true)
-      const result = await handleLogin(data.email, data.password)
+      const result = await loginWithEmailAndPassword(data.email, data.password)
       if (result.success) {
         toast({
           title: 'Login successfully.',
@@ -41,6 +41,33 @@ export function LoginModal() {
       } else {
         toast({
           title: 'Login failed.',
+          description: result.message
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Login failed.',
+        description: 'An error occured during login.'
+      })
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true)
+      const result = await loginWithGoogle()
+      if (result.success) {
+        toast({
+          title: 'Login with Google successfully.',
+          description: 'Proceeding to Home Page.'
+        })
+        navigateToHomepage()
+      } else {
+        toast({
+          title: 'Login with Google failed.',
           description: result.message
         })
       }
@@ -119,7 +146,9 @@ export function LoginModal() {
             <ButtonFullWidth
               enabled={true}
               text='Sign in with Google'
-              onClick={() => {}}
+              onClick={() => {
+                handleGoogleLogin()
+              }}
               isLoading={isLoading}
               backgroundColor='white'
               textColor={colors.text_primary}

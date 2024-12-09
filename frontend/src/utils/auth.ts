@@ -1,9 +1,22 @@
-import { signInWithEmailAndPassword, AuthError } from 'firebase/auth'
-import { auth } from '@/firebase' // Ensure correct import path
-import { LoginUserResponse } from '@/types/api/auth'
+import {
+  signInWithEmailAndPassword,
+  AuthError,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  setPersistence,
+  browserLocalPersistence
+} from 'firebase/auth'
+import { auth } from '@/firebase'
+import { AuthResponse } from '@/types/api/auth'
+import { provider } from '@/services/firebase/firebase_google_provider'
+import { FirebaseError } from 'firebase/app'
 
-export const handleLogin = async (email: string, password: string): Promise<LoginUserResponse> => {
+export const loginWithEmailAndPassword = async (email: string, password: string): Promise<AuthResponse> => {
   try {
+    // Set persistence
+    await setPersistence(auth, browserLocalPersistence)
+
     // Attempt to sign in the user with email and password
     const userCredential = await signInWithEmailAndPassword(auth, email, password)
 
@@ -50,6 +63,54 @@ export const handleLogin = async (email: string, password: string): Promise<Logi
     console.error('Error during login:', errorMessage, firebaseError)
 
     // Return an error response
+    return {
+      success: false,
+      message: errorMessage
+    }
+  }
+}
+
+export const loginWithGoogle = async (): Promise<AuthResponse> => {
+  try {
+    // Set persistence
+    await setPersistence(auth, browserLocalPersistence)
+
+    const result = await signInWithPopup(auth, provider)
+    const credential = GoogleAuthProvider.credentialFromResult(result)
+    const token = credential?.accessToken
+    const user = result.user
+    return {
+      success: true,
+      message: 'Login with Google successfully.',
+      data: {
+        user: user,
+        idToken: token!
+      }
+    }
+  } catch (error) {
+    const firebaseError = error as AuthError
+    // Handle Errors here.
+    const errorMessage = firebaseError.message
+    // The email of the user's account used.
+    return {
+      success: false,
+      message: errorMessage
+    }
+  }
+}
+
+export const signOutUser = async (): Promise<AuthResponse> => {
+  try {
+    await signOut(auth)
+    return {
+      success: true,
+      message: 'Sign out successfully.'
+    }
+  } catch (error) {
+    const firebaseError = error as FirebaseError
+    // Handle Errors here.
+    const errorMessage = firebaseError.message
+    // The email of the user's account used.
     return {
       success: false,
       message: errorMessage

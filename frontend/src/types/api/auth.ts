@@ -1,6 +1,6 @@
 import { User } from 'firebase/auth'
 
-export interface LoginUserResponse {
+export interface AuthResponse {
   success: boolean
   message: string
   data?: {

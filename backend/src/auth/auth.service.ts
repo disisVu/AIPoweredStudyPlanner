@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { LoginDto, RegisterDto } from './dto/autg.dto';
 

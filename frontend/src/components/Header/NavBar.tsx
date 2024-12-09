@@ -1,12 +1,38 @@
 import { useNavigate } from 'react-router-dom'
 import { useHover } from '@/hooks'
 import { colors } from '@/styles'
+import { signOutUser } from '@/utils'
+import { useToast } from '@/hooks/use-toast'
 
 export function NavBar() {
+  const { toast } = useToast()
   const navigate = useNavigate()
 
   const navigateToHome = () => {
     navigate('/')
+  }
+
+  const handleUserSignOut = async () => {
+    try {
+      const result = await signOutUser()
+      if (result.success) {
+        toast({
+          title: 'Signed out successfully.',
+          description: 'Proceeding to Login Page.'
+        })
+      } else {
+        toast({
+          title: 'Failed to sign out.',
+          description: result.message
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Failed to sign out.',
+        description: 'An error occured during signing out.'
+      })
+      console.log(error)
+    }
   }
 
   return (
@@ -20,7 +46,13 @@ export function NavBar() {
       <div className='flex flex-row items-center gap-10'>
         <NavBarHyperlink label='Temp' route='/' />
         {/* Logout button */}
-        <div style={{ backgroundColor: colors.primary }} className='cursor-pointer rounded-md px-4 py-2'>
+        <div
+          style={{ backgroundColor: colors.primary }}
+          className='cursor-pointer rounded-md px-4 py-2'
+          onClick={() => {
+            handleUserSignOut()
+          }}
+        >
           <span className='font-medium text-white'>Log Out</span>
         </div>
       </div>

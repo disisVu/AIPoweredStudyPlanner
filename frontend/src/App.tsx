@@ -4,6 +4,7 @@ import { HomePage, LoginPage, RegistrationPage } from '@/pages'
 import { Toaster } from '@/components/ui/toaster'
 import { ProtectedRoute } from '@/routes/protectedRoute'
 import '@/App.css'
+import { TaskManagementPage } from './pages/TaskManagement/TaskManagementPage'
 
 function App() {
   return (
@@ -26,6 +27,12 @@ function App() {
           <Route path='login' element={<LoginPage />} />
           <Route path='registration' element={<RegistrationPage />} />
         </Route>
+
+        {/* Add task routes */}
+        <Route path='/add-task' element={<ProtectedRoute>
+          <TaskManagementPage />
+        </ProtectedRoute>} />
+
       </Routes>
       <Toaster />
     </BrowserRouter>

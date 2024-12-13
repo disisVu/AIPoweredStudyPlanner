@@ -45,6 +45,7 @@ export function NavBar() {
       </span>
       <div className='flex flex-row items-center gap-10'>
         <NavBarHyperlink label='Temp' route='/' />
+        <NavBarHyperlink label='Task Management' route='/add-task' />
         {/* Logout button */}
         <div
           style={{ backgroundColor: colors.primary }}

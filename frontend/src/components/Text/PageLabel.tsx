@@ -6,8 +6,8 @@ interface PageLabelProps {
 
 export function PageLabel({ label }: PageLabelProps) {
   return (
-    <div className='ml-14 flex h-12 items-center'>
-      <span className='pb-2 text-xl font-medium' style={{ color: colors.text_primary }}>
+    <div className='flex items-center'>
+      <span className='text-xl font-medium' style={{ color: colors.text_primary }}>
         {label}
       </span>
     </div>

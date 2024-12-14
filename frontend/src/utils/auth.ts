@@ -26,7 +26,7 @@ export const loginWithEmailAndPassword = async (email: string, password: string)
     // Fetch the ID token
     const idToken = await user.getIdToken()
 
-    console.log('User ID Token:', idToken)
+    storeUserCredentialsInLocalStorage(idToken, user.uid)
 
     // Return the user and token for further processing
     return {
@@ -79,6 +79,9 @@ export const loginWithGoogle = async (): Promise<AuthResponse> => {
     const credential = GoogleAuthProvider.credentialFromResult(result)
     const token = credential?.accessToken
     const user = result.user
+
+    storeUserCredentialsInLocalStorage(token!, user.uid)
+
     return {
       success: true,
       message: 'Login with Google successfully.',
@@ -119,15 +122,9 @@ export const signOutUser = async (): Promise<AuthResponse> => {
 }
 
 export const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
-  const storedUser = localStorage.getItem(`firebase:authUser:${import.meta.env.VITE_API_KEY}:[DEFAULT]`)
-  if (!storedUser) {
-    console.error('No user data found in local storage.')
-    return { accessToken: null, uid: null }
-  }
   try {
-    const userObject = JSON.parse(storedUser)
-    const accessToken = userObject?.stsTokenManager?.accessToken || null
-    const uid = userObject?.uid || null
+    const accessToken = localStorage.getItem('accessToken')
+    const uid = localStorage.getItem('uid')
 
     if (!accessToken) {
       console.error('Access token not found in stored user data.')
@@ -140,4 +137,9 @@ export const getUserCredentials = (): { accessToken: string | null; uid: string 
     console.error('Error parsing user data from local storage:', error)
     return { accessToken: null, uid: null }
   }
+}
+
+export const storeUserCredentialsInLocalStorage = (accessToken: string, uid: string): void => {
+  localStorage.setItem('accessToken', accessToken)
+  localStorage.setItem('uid', uid)
 }

@@ -23,7 +23,7 @@ export function CustomToolbar<CalendarEvent extends object>({
 
   return (
     <div className='mb-4 flex h-10 justify-between'>
-      <div className='flex h-full items-center gap-6'>
+      <div className='flex h-full items-center gap-4'>
         <ToolBarButton label='Today' onClick={() => onNavigate('TODAY')} />
         <div className='flex gap-1'>
           <DayNavigateButton direction={Direction.Left} onClick={() => onNavigate('PREV')} currentView={currentView} />
@@ -71,7 +71,7 @@ interface ToolBarButtonProps {
 export function ToolBarButton({ label, onClick = () => {} }: ToolBarButtonProps) {
   return (
     <div
-      className='flex h-full min-w-24 cursor-pointer items-center justify-center rounded-full border border-gray-400 bg-white px-6 hover:bg-gray-200'
+      className='flex h-full min-w-20 cursor-pointer items-center justify-center rounded-full border border-gray-400 bg-white px-6 hover:bg-gray-200'
       onClick={onClick}
     >
       <p className='h-auto text-sm font-medium'>{label}</p>
@@ -108,7 +108,7 @@ export function ToolBarButtonGroup({ views, onView }: ToolBarButtonGroupProps) {
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') handleViewChange(view)
           }}
-          className={`flex h-full min-w-24 cursor-pointer items-center justify-center rounded-full border-none px-6 text-sm font-medium transition-all hover:border-none`}
+          className={`flex h-full min-w-20 cursor-pointer items-center justify-center rounded-full border-none px-6 text-sm font-medium transition-all hover:border-none`}
           style={{
             backgroundColor: selectedView === view ? colors.primary : '',
             color: selectedView === view ? '#fff' : colors.text_primary

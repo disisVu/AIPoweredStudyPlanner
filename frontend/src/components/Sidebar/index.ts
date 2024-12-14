@@ -1,2 +1,2 @@
 export * from './AppSidebar'
-export * from './SidebarTrigger'
+export * from '../Panel/PanelTriggerButton'

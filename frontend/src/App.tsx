@@ -4,7 +4,7 @@ import { HomePage, LoginPage, RegistrationPage, TaskSchedulingPage } from '@/pag
 import { Toaster } from '@/components/ui/toaster'
 import { ProtectedRoute } from '@/routes/protectedRoute'
 import '@/App.css'
-import { TaskManagementPage } from './pages/TaskManagement/TaskManagementPage'
+import { TaskManagementPage } from '@/pages/TaskManagement/TaskManagementPage'
 
 function App() {
   return (

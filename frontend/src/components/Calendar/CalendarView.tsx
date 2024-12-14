@@ -52,9 +52,9 @@ export function CalendarView() {
   const { defaultDate } = useMemo(() => ({ defaultDate: new Date() }), [])
 
   return (
-    <div className='w-full select-none'>
+    <div className='ml-6 h-[calc(100vh-88px)] w-full select-none'>
       <DnDCalendar
-        style={{ height: '820px' }}
+        style={{ height: '100%' }}
         localizer={localizer}
         defaultDate={defaultDate}
         events={myEvents}

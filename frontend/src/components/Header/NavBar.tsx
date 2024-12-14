@@ -3,14 +3,12 @@ import { useHover } from '@/hooks'
 import { colors } from '@/styles'
 import { signOutUser } from '@/utils'
 import { useToast } from '@/hooks/use-toast'
+import { PanelTriggerButton } from '@/components/Sidebar'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import logoPng from '@/assets/logo/logo.png'
 
 export function NavBar() {
   const { toast } = useToast()
-  const navigate = useNavigate()
-
-  const navigateToHome = () => {
-    navigate('/')
-  }
 
   const handleUserSignOut = async () => {
     try {
@@ -38,12 +36,25 @@ export function NavBar() {
   return (
     <div
       style={{ width: '100vw', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}
-      className='sticky top-0 z-20 flex h-12 flex-row items-center justify-between gap-4 bg-white px-8 py-3 text-sm'
+      className='sticky top-0 z-20 flex h-14 select-none flex-row items-center justify-between bg-white px-4 text-sm'
     >
-      <span style={{ color: colors.primary }} className='cursor-pointer text-base font-medium' onClick={navigateToHome}>
-        AI-Powered Study Planner
-      </span>
-      <div className='flex flex-row items-center gap-10'>
+      <div className='flex flex-row items-center gap-4'>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PanelTriggerButton />
+          </TooltipTrigger>
+          <TooltipContent side='bottom' align='center'>
+            Open Task Panel
+          </TooltipContent>
+        </Tooltip>
+        <div className='flex items-center gap-2'>
+          <img src={logoPng} className='h-8' />
+          <span className='text-xl font-medium' style={{ color: colors.primary }}>
+            AI-Powered Study Planner
+          </span>
+        </div>
+      </div>
+      <div className='flex flex-row items-center gap-6'>
         <NavBarHyperlink label='Task Management' route='/add-task' />
         <NavBarHyperlink label='Scheduling' route='/scheduling' />
         {/* Logout button */}
@@ -76,7 +87,7 @@ function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
 
   return (
     <span
-      style={{ color: isHovered ? colors.primary : colors.text_secondary }}
+      style={{ color: isHovered ? colors.text_primary : colors.text_secondary }}
       className='cursor-pointer font-medium'
       onClick={navigateToRoute}
       onMouseEnter={onMouseEnter}

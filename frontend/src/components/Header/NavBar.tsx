@@ -38,17 +38,17 @@ export function NavBar() {
   return (
     <div
       style={{ width: '100vw', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}
-      className='sticky top-0 z-20 flex h-16 flex-row items-center justify-between gap-4 bg-white py-3 pl-6 pr-10'
+      className='sticky top-0 z-20 flex h-12 flex-row items-center justify-between gap-4 bg-white px-8 py-3 text-sm'
     >
-      <span style={{ color: colors.primary }} className='cursor-pointer font-medium' onClick={navigateToHome}>
+      <span style={{ color: colors.primary }} className='cursor-pointer text-base font-medium' onClick={navigateToHome}>
         AI-Powered Study Planner
       </span>
       <div className='flex flex-row items-center gap-10'>
-        <NavBarHyperlink label='Temp' route='/' />
+        <NavBarHyperlink label='Scheduling' route='/scheduling' />
         {/* Logout button */}
         <div
           style={{ backgroundColor: colors.primary }}
-          className='cursor-pointer rounded-md px-4 py-2'
+          className='cursor-pointer rounded-full px-6 py-2'
           onClick={() => {
             handleUserSignOut()
           }}

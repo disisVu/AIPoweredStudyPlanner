@@ -5,6 +5,7 @@ import { PrimaryModal } from '@/components/Modal/ModalLayouts'
 import { useToast } from '@/hooks/use-toast'
 import { FiPlus } from 'react-icons/fi'
 import axios from 'axios'
+import { getUserCredentials as getUserCredentialsUtil } from '@/utils'
 import { Task } from '@/pages/TaskManagement/task.type'
 
 export function TaskManagementModal() {
@@ -63,15 +64,16 @@ export function TaskManagementModal() {
   }
 
   const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
-    const storedUser = localStorage.getItem(`firebase:authUser:${import.meta.env.VITE_API_KEY}:[DEFAULT]`)
-    if (!storedUser) {
-      console.error('No user data found in local storage.')
-      return { accessToken: null, uid: null }
-    }
+    // const storedUser = localStorage.getItem(`firebase:authUser:${import.meta.env.VITE_API_KEY}:[DEFAULT]`)
+    // if (!storedUser) {
+    //   console.error('No user data found in local storage.')
+    //   return { accessToken: null, uid: null }
+    // }
     try {
-      const userObject = JSON.parse(storedUser)
-      const accessToken = userObject?.stsTokenManager?.accessToken || null
-      const uid = userObject?.uid || null
+      // const userObject = JSON.parse(storedUser)
+      // const accessToken = userObject?.stsTokenManager?.accessToken || null
+      // const uid = userObject?.uid || null
+      const { accessToken, uid } = getUserCredentialsUtil()
       if (!accessToken) {
         console.error('Access token not found in stored user data.')
       }

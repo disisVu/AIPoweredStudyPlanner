@@ -3,6 +3,7 @@ import axios from 'axios'
 import TaskForm from './TaskForm'
 import { Task } from './task.type'
 import { IoCloseSharp } from 'react-icons/io5'
+import { getUserCredentials as getUserCredentialsUtil } from '@/utils'
 
 interface AddTaskProps {
   onSuccess: () => void
@@ -19,26 +20,26 @@ const AddTask: React.FC<AddTaskProps> = ({ onSuccess, onFailure, onClose }) => {
   }, [])
 
   const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
-    const storedUser = localStorage.getItem(`firebase:authUser:${import.meta.env.VITE_API_KEY}:[DEFAULT]`)
-    if (!storedUser) {
-      console.error('No user data found in local storage.')
-      return { accessToken: null, uid: null }
-    }
+    // const storedUser = localStorage.getItem(`firebase:authUser:${import.meta.env.VITE_API_KEY}:[DEFAULT]`)
+    // if (!storedUser) {
+    //   console.error('No user data found in local storage.')
+    //   return { accessToken: null, uid: null }
+    // }
     try {
-      const userObject = JSON.parse(storedUser)
-      const accessToken = userObject?.stsTokenManager?.accessToken || null
-      const uid = userObject?.uid || null
+      // const userObject = JSON.parse(storedUser)
+      // const accessToken = userObject?.stsTokenManager?.accessToken || null
+      // const uid = userObject?.uid || null
+      const { accessToken, uid } = getUserCredentialsUtil()
 
-      if (!accessToken) {
+      if (!accessToken || !uid) {
         console.error('Access token not found in stored user data.')
-      }
-      if (!uid) {
         console.error('UID not found in stored user data.')
+      } else {
+        console.log(accessToken)
+        console.log(uid)
+        setUid(uid)
+        setToken(accessToken)
       }
-      console.log(accessToken)
-      console.log(uid)
-      setUid(uid)
-      setToken(accessToken)
       return { accessToken, uid }
     } catch (error) {
       console.error('Error parsing user data from local storage:', error)

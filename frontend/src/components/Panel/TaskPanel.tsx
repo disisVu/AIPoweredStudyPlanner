@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { colors } from '@/styles'
 import { Task } from '@/../../shared/src/schemas/Task'
 import { getTasksByUserId } from '@/api/tasks.api'
-import { getUserCredentials } from '@/utils'
+import { getUserCredentials, stringToColor } from '@/utils'
 
 export function TaskPanel() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -37,7 +37,7 @@ export function TaskPanel() {
 
   return (
     <div className='w-60 px-6 py-4' style={{ color: colors.text_primary }}>
-      <div className='flex h-10 items-center justify-start'>
+      <div className='mb-4 flex h-10 items-center justify-start'>
         <span className='font-medium'>Tasks</span>
       </div>
 
@@ -46,15 +46,24 @@ export function TaskPanel() {
 
       <ul className='space-y-2'>
         {tasks.map((task) => (
-          <li key={task._id} className='border-b pb-2'>
-            <div className='font-medium'>{task.name}</div>
-            <div className='text-sm text-gray-500'>{task.description}</div>
-            <div className='text-xs text-gray-400'>
-              Priority: {task.priority}, Status: {task.status}
-            </div>
-          </li>
+          <DraggableTask key={task._id} task={task} />
         ))}
       </ul>
+    </div>
+  )
+}
+
+interface DraggableTaskProps {
+  task: Task
+}
+
+function DraggableTask({ task }: DraggableTaskProps) {
+  return (
+    <div
+      className='flex w-full items-center justify-start rounded-lg px-4 py-2'
+      style={{ backgroundColor: stringToColor(task._id!) }}
+    >
+      <span className='text-sm font-medium text-white'>{task.name}</span>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
 import TaskList from '@/pages/TaskManagement/TaskList'
 import AddTask from '@/pages/TaskManagement/AddTask'
@@ -99,6 +100,7 @@ export function TaskManagementModal() {
         }
       })
       if (Array.isArray(response.data)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transformedTasks = response.data.map((task: any) => ({
           ...task,
           id: task._id

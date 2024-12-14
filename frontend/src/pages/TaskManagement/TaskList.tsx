@@ -32,6 +32,7 @@ const TaskList: React.FC<TaskListProp> = ({ tasks, onDelete, onUpdate }) => {
     if (!token || !uid) {
       getUserCredentials()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
@@ -49,12 +50,12 @@ const TaskList: React.FC<TaskListProp> = ({ tasks, onDelete, onUpdate }) => {
 
       if (!accessToken) {
         console.error('Access token not found in stored user data.')
-      }
-      if (!uid) {
+      } else if (!uid) {
         console.error('UID not found in stored user data.')
+      } else {
+        setUid(uid)
+        setToken(accessToken)
       }
-      setUid(uid)
-      setToken(accessToken)
       return { accessToken, uid }
     } catch (error) {
       console.error('Error parsing user data from local storage:', error)

@@ -139,13 +139,9 @@ export function TaskManagementModal() {
 
   return (
     <div
+      className='hi'
       style={{
-        width: '100vw',
-        height: '100vh',
-        margin: '0',
-        padding: '1rem',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center'

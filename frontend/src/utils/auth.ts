@@ -117,3 +117,27 @@ export const signOutUser = async (): Promise<AuthResponse> => {
     }
   }
 }
+
+export const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
+  const storedUser = localStorage.getItem(`firebase:authUser:${import.meta.env.VITE_API_KEY}:[DEFAULT]`)
+  if (!storedUser) {
+    console.error('No user data found in local storage.')
+    return { accessToken: null, uid: null }
+  }
+  try {
+    const userObject = JSON.parse(storedUser)
+    const accessToken = userObject?.stsTokenManager?.accessToken || null
+    const uid = userObject?.uid || null
+
+    if (!accessToken) {
+      console.error('Access token not found in stored user data.')
+    }
+    if (!uid) {
+      console.error('UID not found in stored user data.')
+    }
+    return { accessToken, uid }
+  } catch (error) {
+    console.error('Error parsing user data from local storage:', error)
+    return { accessToken: null, uid: null }
+  }
+}

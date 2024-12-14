@@ -7,7 +7,7 @@ import {
 import { AuthService } from '../auth/auth.service'; // Ensure correct import path
 
 @Injectable()
-export class TaskGuard implements CanActivate {
+export class EventGuard implements CanActivate {
   constructor(private readonly authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

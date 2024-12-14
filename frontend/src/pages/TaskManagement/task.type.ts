@@ -7,11 +7,11 @@
 // C: Completed
 // E: Expired
 export interface Task {
-    id: string;
-    name: string;
-    description: string;
-    priority: 'H' | 'M' | 'L';
-    status: 'T' | 'IP' | 'C';
-    estimatedTime: number; // minutes
-    deadline: string;
+  id: string
+  name: string
+  description: string
+  priority: 'H' | 'M' | 'L'
+  status: 'T' | 'IP' | 'C'
+  estimatedTime: number // minutes
+  deadline: string
 }

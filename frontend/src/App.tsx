@@ -21,18 +21,13 @@ function App() {
         >
           <Route index element={<HomePage />} />
           <Route path='scheduling' element={<TaskSchedulingPage />} />
+          <Route path='add-task' element={<TaskManagementPage />} />
         </Route>
         {/* Authentication routes */}
         <Route path='/auth' element={<AuthenticationLayout />}>
           <Route path='login' element={<LoginPage />} />
           <Route path='registration' element={<RegistrationPage />} />
         </Route>
-
-        {/* Add task routes */}
-        <Route path='/add-task' element={<ProtectedRoute>
-          <TaskManagementPage />
-        </ProtectedRoute>} />
-
       </Routes>
       <Toaster />
     </BrowserRouter>

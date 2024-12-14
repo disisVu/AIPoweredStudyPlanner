@@ -44,6 +44,8 @@ export function NavBar() {
         AI-Powered Study Planner
       </span>
       <div className='flex flex-row items-center gap-10'>
+        <NavBarHyperlink label='Temp' route='/' />
+        <NavBarHyperlink label='Task Management' route='/add-task' />
         <NavBarHyperlink label='Scheduling' route='/scheduling' />
         {/* Logout button */}
         <div

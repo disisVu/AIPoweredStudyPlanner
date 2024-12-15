@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { colors } from '@/styles'
 import { Task } from '@/../../shared/src/schemas/Task'
 import { getTasksByUserId } from '@/api/tasks.api'
-import { getUserCredentials, stringToColor } from '@/utils'
+import { getTextColorForBackground, getUserCredentials, stringToColor } from '@/utils'
+import { Event } from '@/components/Calendar/event.type'
 
-export function TaskPanel() {
+interface TaskPanelProps {
+  setDraggedEvent: React.Dispatch<React.SetStateAction<Event | 'undroppable' | undefined>>
+}
+
+export function TaskPanel({ setDraggedEvent }: TaskPanelProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -26,7 +31,7 @@ export function TaskPanel() {
         console.log(fetchedTasks)
         setTasks(fetchedTasks)
       } catch {
-        setError('Failed to load tasks')
+        setError('Failed to load tasks.')
       } finally {
         setLoading(false)
       }
@@ -34,6 +39,14 @@ export function TaskPanel() {
 
     fetchTasks()
   }, [])
+
+  // Handle drag start and set the dragged event
+  const handleDragStart = useCallback(
+    (event: Event | 'undroppable') => {
+      setDraggedEvent(event)
+    },
+    [setDraggedEvent]
+  )
 
   return (
     <div className='w-60 px-6 py-4' style={{ color: colors.text_primary }}>
@@ -46,7 +59,11 @@ export function TaskPanel() {
 
       <ul className='space-y-2'>
         {tasks.map((task) => (
-          <DraggableTask key={task._id} task={task} />
+          <DraggableTask
+            key={task._id}
+            task={task}
+            onDragStart={() => handleDragStart({ title: task.name, taskId: task._id } as Event)}
+          />
         ))}
       </ul>
     </div>
@@ -55,15 +72,21 @@ export function TaskPanel() {
 
 interface DraggableTaskProps {
   task: Task
+  onDragStart: () => void
 }
 
-function DraggableTask({ task }: DraggableTaskProps) {
+function DraggableTask({ task, onDragStart }: DraggableTaskProps) {
+  const bgColor = stringToColor(task._id!)
   return (
     <div
+      draggable='true'
       className='flex w-full items-center justify-start rounded-lg px-4 py-2'
-      style={{ backgroundColor: stringToColor(task._id!) }}
+      style={{ backgroundColor: bgColor }}
+      onDragStart={() => onDragStart()}
     >
-      <span className='text-sm font-medium text-white'>{task.name}</span>
+      <span className='text-sm font-medium' style={{ color: getTextColorForBackground(bgColor) }}>
+        {task.name}
+      </span>
     </div>
   )
 }

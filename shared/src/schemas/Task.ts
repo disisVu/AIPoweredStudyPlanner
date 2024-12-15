@@ -10,8 +10,8 @@ export const TaskSchema = z.object({
   status: z.enum(['T', 'IP', 'C']),
   estimatedTime: z.number().int().positive(),
   deadline: z.coerce.date(),
-  created_at: z.coerce.date().default(() => new Date()),
-  updated_at: z.coerce.date(),
+  createdAt: z.coerce.date().default(() => new Date()),
+  updatedAt: z.coerce.date(),
 })
 
 export type Task = z.infer<typeof TaskSchema>

@@ -14,7 +14,7 @@ export function CustomToolbar<CalendarEvent extends object>({
   onNavigate,
   onView
 }: ToolbarProps<CalendarEvent, object>) {
-  const [currentView, setCurrentView] = useState<View>('day')
+  const [currentView, setCurrentView] = useState<View>('month')
 
   const handleViewChange = (view: View) => {
     setCurrentView(view)
@@ -85,7 +85,7 @@ interface ToolBarButtonGroupProps {
 }
 
 export function ToolBarButtonGroup({ views, onView }: ToolBarButtonGroupProps) {
-  const [selectedView, setSelectedView] = useState<View>('day')
+  const [selectedView, setSelectedView] = useState<View>('month')
 
   const handleViewChange = (view: View) => {
     setSelectedView(view)

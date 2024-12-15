@@ -12,10 +12,13 @@ export class Event {
   userId: string;
 
   @Prop({ required: true })
-  startTime: Date;
+  title: string;
 
   @Prop({ required: true })
-  endTime: Date;
+  start: Date;
+
+  @Prop({ required: true })
+  end: Date;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

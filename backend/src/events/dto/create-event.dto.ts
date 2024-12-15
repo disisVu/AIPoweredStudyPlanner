@@ -8,8 +8,8 @@ export class CreateEventDto {
   userId: string;
 
   @IsNotEmpty()
-  startTime: Date;
+  start: Date;
 
   @IsNotEmpty()
-  endTime: Date;
+  end: Date;
 }

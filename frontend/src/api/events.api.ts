@@ -1,6 +1,7 @@
 import { axiosPrivate as api } from '@/api/api'
 import { getUserCredentials } from '@/utils'
 import { CreateEventRequest } from '@/types/api/events'
+import { Event } from '@/../../shared/src/schemas/Event'
 
 // Set up a request interceptor to add the Authorization header
 api.interceptors.request.use(
@@ -21,7 +22,7 @@ api.interceptors.request.use(
   }
 )
 
-export const createEvent = async (eventData: CreateEventRequest): Promise<Event> => {
+const createEvent = async (eventData: CreateEventRequest): Promise<Event> => {
   try {
     const response = await api.post('/events', eventData)
     return response.data
@@ -30,13 +31,13 @@ export const createEvent = async (eventData: CreateEventRequest): Promise<Event>
   }
 }
 
-export const getEventsByUserId = async (userId: string): Promise<Event[]> => {
+const getEventsByUserId = async (userId: string): Promise<Event[]> => {
   try {
-    const response = await api.get(`/events/`, {
-      params: { userId }
-    })
+    const response = await api.get(`/events/${userId}`)
     return response.data
   } catch {
     throw new Error('Error: Get events by user ID')
   }
 }
+
+export const eventsApi = { createEvent, getEventsByUserId }

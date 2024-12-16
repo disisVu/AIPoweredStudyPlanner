@@ -40,4 +40,13 @@ const getEventsByUserId = async (userId: string): Promise<Event[]> => {
   }
 }
 
-export const eventsApi = { createEvent, getEventsByUserId }
+const updateEvent = async (eventId: string, eventData: Partial<Event>): Promise<Event> => {
+  try {
+    const response = await api.put(`/events/${eventId}`, eventData)
+    return response.data
+  } catch {
+    throw new Error('Error: Update event')
+  }
+}
+
+export const eventsApi = { createEvent, getEventsByUserId, updateEvent }

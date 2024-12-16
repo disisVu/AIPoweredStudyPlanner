@@ -1,7 +1,15 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { EventGuard } from '@/events/events.guard';
 import { EventsService } from '@/events/events.service';
-import { CreateEventDto } from '@/events/dto';
+import { CreateEventDto, UpdateEventDto } from '@/events/dto';
 
 @Controller('events')
 @UseGuards(EventGuard)
@@ -16,5 +24,13 @@ export class EventsController {
   @Get(':userId')
   getEventsByUserId(@Param('userId') userId: string) {
     return this.eventsService.getEventsByUserId(userId);
+  }
+
+  @Put(':eventId')
+  async updateEvent(
+    @Param('eventId') eventId: string,
+    @Body() updateEventDto: UpdateEventDto,
+  ) {
+    return this.eventsService.updateEvent(eventId, updateEventDto);
   }
 }

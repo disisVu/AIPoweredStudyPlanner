@@ -9,11 +9,21 @@ import '@/styles/calendarView.scss'
 
 import { CustomToolbar } from '@/components/Calendar'
 import { Event } from './event.type'
-import { getUserCredentials } from '@/utils'
+import { convertToDate, getUserCredentials } from '@/utils'
 import { CreateEventRequest } from '../../types/api/events'
 import { eventsApi } from '@/api/events.api'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
+
+const staticEvents = [
+  {
+    _id: '1',
+    title: 'Test Event',
+    start: new Date(),
+    end: new Date(new Date().getTime() + 60 * 60 * 1000),
+    isDraggable: true
+  }
+]
 
 interface CalendarViewProps {
   draggedEvent: Event | 'undroppable' | undefined
@@ -46,14 +56,17 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
     const fetchEvents = async () => {
       try {
         const fetchedEvents = await eventsApi.getEventsByUserId(userId)
-        console.log(fetchedEvents)
 
         // Ensure start and end are Date objects
         const formattedEvents = fetchedEvents.map((event: any) => ({
-          ...event,
+          _id: event._id,
+          title: event.title,
           start: new Date(event.start),
-          end: new Date(event.end)
+          end: new Date(event.end),
+          isDraggable: true
         }))
+        console.log('Formatted Events:', formattedEvents[0])
+        console.log('Static Events:', staticEvents)
 
         setMyEvents(formattedEvents)
       } catch {
@@ -80,6 +93,8 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   // Custom handling for drag-over events
   const customOnDragOverFromOutside = useCallback(
     (dragEvent: React.DragEvent) => {
+      console.log('customOnDragOverFromOutside')
+
       if (draggedEvent !== 'undroppable') {
         dragEvent.preventDefault()
       }
@@ -89,12 +104,21 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
 
   // Move an event to a new position
   const moveEvent = useCallback(
-    ({ event, start, end, isAllDay: droppedOnAllDaySlot = false }: EventInteractionArgs<Event>) => {
-      setMyEvents((prev) => {
-        const existing = prev.find((ev) => ev._id === event._id) ?? {}
-        const filtered = prev.filter((ev) => ev._id !== event._id)
-        return [...filtered, { ...existing, start, end, allDay: droppedOnAllDaySlot }]
-      })
+    async ({ event, start, end, isAllDay: droppedOnAllDaySlot = false }: EventInteractionArgs<Event>) => {
+      try {
+        await eventsApi.updateEvent(event._id, {
+          start: convertToDate(start),
+          end: convertToDate(end)
+        })
+
+        setMyEvents((prev) => {
+          const existing = prev.find((ev) => ev._id === event._id) ?? {}
+          const filtered = prev.filter((ev) => ev._id !== event._id)
+          return [...filtered, { ...existing, start, end, allDay: droppedOnAllDaySlot }]
+        })
+      } catch (error) {
+        console.error('Failed to update event:', error)
+      }
     },
     []
   )
@@ -102,7 +126,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   // Handle dropping from outside the calendar
   const onDropFromOutside = useCallback(
     async ({ start, end, allDay }: { start: Date; end: Date; allDay?: boolean }) => {
-      console.log('start:', start)
+      console.log('onDropFromOutside')
 
       if (draggedEvent === 'undroppable') {
         setDraggedEvent(undefined)
@@ -110,9 +134,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
       }
 
       const { taskId, title } = draggedEvent as Event
-      console.log('taskId: ', taskId)
-      console.log('start: ', start)
-      console.log('end: ', end)
 
       // Prepare the event data for the API request
       const eventData: CreateEventRequest = {
@@ -151,39 +172,22 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   )
 
   // Resize an event
-  const resizeEvent = useCallback(({ event, start, end }: EventInteractionArgs<Event>) => {
-    setMyEvents((prev) => {
-      const existing = prev.find((ev) => ev._id === event._id) ?? {}
-      const filtered = prev.filter((ev) => ev._id !== event._id)
-      return [...filtered, { ...existing, start, end }]
-    })
+  const resizeEvent = useCallback(async ({ event, start, end }: EventInteractionArgs<Event>) => {
+    try {
+      await eventsApi.updateEvent(event._id, {
+        start: convertToDate(start),
+        end: convertToDate(end)
+      })
+
+      setMyEvents((prev) => {
+        const existing = prev.find((ev) => ev._id === event._id) ?? {}
+        const filtered = prev.filter((ev) => ev._id !== event._id)
+        return [...filtered, { ...existing, start, end }]
+      })
+    } catch (error) {
+      console.error('Failed to update event:', error)
+    }
   }, [])
-
-  // const onEventDrop: withDragAndDropProps<Event>['onEventDrop'] = useCallback(
-  //   ({ event, start, end, isAllDay: droppedOnAllDaySlot = false }: EventInteractionArgs<Event>) => {
-  //     const parsedStart = typeof start === 'string' ? new Date(start) : start
-  //     const parsedEnd = typeof end === 'string' ? new Date(end) : end
-
-  //     setMyEvents((prevEvents) =>
-  //       prevEvents.map((ev) =>
-  //         ev.id === event.id ? { ...ev, start: parsedStart, end: parsedEnd, allDay: droppedOnAllDaySlot } : ev
-  //       )
-  //     )
-  //   },
-  //   []
-  // )
-
-  // const onEventResize: withDragAndDropProps<Event>['onEventResize'] = useCallback(
-  //   ({ event, start, end }: EventInteractionArgs<Event>) => {
-  //     const parsedStart = typeof start === 'string' ? new Date(start) : start
-  //     const parsedEnd = typeof end === 'string' ? new Date(end) : end
-
-  //     setMyEvents((prevEvents) =>
-  //       prevEvents.map((ev) => (ev.id === event.id ? { ...ev, start: parsedStart, end: parsedEnd } : ev))
-  //     )
-  //   },
-  //   []
-  // )
 
   // Default date for the calendar
   const { defaultDate } = useMemo(() => ({ defaultDate: new Date() }), [])
@@ -195,8 +199,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         localizer={localizer}
         defaultDate={defaultDate}
         events={myEvents}
-        // onEventDrop={onEventDrop}
-        // onEventResize={onEventResize}
         dragFromOutsideItem={dragFromOutsideItem}
         draggableAccessor={(event: Event) => !!event.isDraggable}
         eventPropGetter={eventPropGetter}

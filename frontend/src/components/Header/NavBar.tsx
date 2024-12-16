@@ -1,11 +1,13 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useHover } from '@/hooks'
 import { colors } from '@/styles'
 import { signOutUser } from '@/utils'
 import { useToast } from '@/hooks/use-toast'
-import { PanelTriggerButton } from '@/components/Sidebar'
+import { PanelTriggerButton } from '@/components/Panel'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import logoPng from '@/assets/logo/logo.png'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
 
 export function NavBar() {
   const { toast } = useToast()
@@ -39,14 +41,7 @@ export function NavBar() {
       className='sticky top-0 z-20 flex h-14 select-none flex-row items-center justify-between bg-white px-4 text-sm'
     >
       <div className='flex flex-row items-center gap-4'>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <PanelTriggerButton />
-          </TooltipTrigger>
-          <TooltipContent side='bottom' align='center'>
-            Open Task Panel
-          </TooltipContent>
-        </Tooltip>
+        <PanelTriggerButton />
         <div className='flex items-center gap-2'>
           <img src={logoPng} className='h-8' />
           <span className='text-xl font-medium' style={{ color: colors.primary }}>
@@ -55,8 +50,7 @@ export function NavBar() {
         </div>
       </div>
       <div className='flex flex-row items-center gap-6'>
-        <NavBarHyperlink label='Task Management' route='/add-task' />
-        <NavBarHyperlink label='Scheduling' route='/scheduling' />
+        <PageSwitchButtons />
         {/* Logout button */}
         <div
           style={{ backgroundColor: colors.primary }}
@@ -77,7 +71,7 @@ interface NavBarHyperlinkProps {
   route: string
 }
 
-function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
+export function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
   const navigate = useNavigate()
   const { isHovered, onMouseEnter, onMouseLeave } = useHover()
 
@@ -95,5 +89,48 @@ function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
     >
       {label}
     </span>
+  )
+}
+
+function PageSwitchButtons() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const isCurrentRoute = (path: string) => location.pathname === path
+
+  return (
+    <div className='flex flex-row'>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className='cursor-pointer rounded-l-full border border-gray-400 py-2 pl-5 pr-4 hover:brightness-90'
+            style={{
+              backgroundColor: isCurrentRoute('/scheduling') ? '#c2e7ff' : '#fff'
+            }}
+            onClick={() => navigate('/scheduling')}
+          >
+            <FontAwesomeIcon icon={faCalendar} size='lg' />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side='bottom' align='center'>
+          Switch to Calendar
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className='cursor-pointer rounded-r-full border border-gray-400 border-l-transparent py-2 pl-4 pr-5 hover:brightness-90'
+            style={{
+              backgroundColor: isCurrentRoute('/add-task') ? '#c2e7ff' : '#fff'
+            }}
+            onClick={() => navigate('/add-task')}
+          >
+            <FontAwesomeIcon icon={faCircleCheck} size='lg' />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side='bottom' align='center'>
+          Switch to Tasks
+        </TooltipContent>
+      </Tooltip>
+    </div>
   )
 }

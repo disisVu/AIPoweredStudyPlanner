@@ -47,15 +47,15 @@ interface DayNavigateButtonProps {
 export function DayNavigateButton({ direction, onClick, currentView }: DayNavigateButtonProps) {
   return (
     <Tooltip>
-      <div
-        onClick={onClick}
-        className='flex cursor-pointer items-center justify-center rounded-full p-2 text-sm hover:bg-gray-200'
-      >
-        <TooltipTrigger asChild>
+      <TooltipTrigger asChild>
+        <div
+          onClick={onClick}
+          className='flex cursor-pointer items-center justify-center rounded-full bg-white p-2 text-sm hover:brightness-90'
+        >
           <FontAwesomeIcon icon={direction === Direction.Left ? faChevronLeft : faChevronRight} />
-        </TooltipTrigger>
-      </div>
-      <TooltipContent side='bottom' align='center' sideOffset={12}>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side='bottom' align='center' sideOffset={4}>
         {direction === Direction.Left ? 'Previous ' : 'Next '}
         {String(currentView)}
       </TooltipContent>
@@ -71,7 +71,7 @@ interface ToolBarButtonProps {
 export function ToolBarButton({ label, onClick = () => {} }: ToolBarButtonProps) {
   return (
     <div
-      className='flex h-full min-w-20 cursor-pointer items-center justify-center rounded-full border border-gray-400 bg-white px-6 hover:bg-gray-200'
+      className='flex h-full min-w-20 cursor-pointer items-center justify-center rounded-full border border-gray-400 bg-white px-6 hover:brightness-90'
       onClick={onClick}
     >
       <p className='h-auto text-sm font-medium'>{label}</p>

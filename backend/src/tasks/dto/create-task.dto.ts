@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsInt,
   IsString,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateTaskDto {
@@ -39,4 +40,7 @@ export class CreateTaskDto {
 
   @IsOptional()
   deadline?: Date;
+
+  @IsBoolean()
+  isDistributed: boolean;
 }

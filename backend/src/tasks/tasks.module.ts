@@ -13,6 +13,6 @@ import { AuthModule } from '@/auth/auth.module';
   ],
   controllers: [TasksController],
   providers: [TasksService, TaskGuard],
-  exports: [MongooseModule],
+  exports: [TasksService],
 })
 export class TasksModule {}

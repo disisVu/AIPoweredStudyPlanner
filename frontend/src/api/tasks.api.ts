@@ -21,7 +21,7 @@ api.interceptors.request.use(
   }
 )
 
-export const getTasksByUserId = async (userId: string): Promise<Task[]> => {
+const getTasksByUserId = async (userId: string): Promise<Task[]> => {
   try {
     const response = await api.get(`/tasks/${userId}`)
     return response.data
@@ -29,3 +29,18 @@ export const getTasksByUserId = async (userId: string): Promise<Task[]> => {
     throw new Error('Error: Get tasks by user ID')
   }
 }
+
+const getUndistributedTasksByUserId = async (userId: string): Promise<Task[]> => {
+  try {
+    const response = await api.get(`/tasks/filter/${userId}`, {
+      params: {
+        isDistributed: false
+      }
+    })
+    return response.data
+  } catch {
+    throw new Error('Error: Get undistributed tasks by user ID')
+  }
+}
+
+export const tasksApi = { getTasksByUserId, getUndistributedTasksByUserId }

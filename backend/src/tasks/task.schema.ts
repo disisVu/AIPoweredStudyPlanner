@@ -32,6 +32,9 @@ export class Task {
 
   @Prop()
   deadline: Date;
+
+  @Prop({ default: false })
+  isDistributed: boolean;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

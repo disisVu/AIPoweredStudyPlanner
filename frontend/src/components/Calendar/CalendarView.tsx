@@ -15,16 +15,6 @@ import { eventsApi } from '@/api/events.api'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
 
-const staticEvents = [
-  {
-    _id: '1',
-    title: 'Test Event',
-    start: new Date(),
-    end: new Date(new Date().getTime() + 60 * 60 * 1000),
-    isDraggable: true
-  }
-]
-
 interface CalendarViewProps {
   draggedEvent: Event | 'undroppable' | undefined
   setDraggedEvent: React.Dispatch<React.SetStateAction<Event | 'undroppable' | undefined>>
@@ -65,8 +55,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
           end: new Date(event.end),
           isDraggable: true
         }))
-        console.log('Formatted Events:', formattedEvents[0])
-        console.log('Static Events:', staticEvents)
 
         setMyEvents(formattedEvents)
       } catch {

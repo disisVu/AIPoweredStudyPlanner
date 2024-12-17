@@ -1,31 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Task, TaskDocument } from '@/tasks/task.schema';
 import { Event, EventDocument } from '@/events/event.schema';
 import { CreateEventDto, UpdateEventDto } from '@/events/dto';
+import { TasksService } from '../tasks/tasks.service';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectModel(Event.name) private readonly eventModel: Model<EventDocument>,
-    @InjectModel(Task.name) private readonly taskModel: Model<TaskDocument>,
+    private readonly tasksService: TasksService,
   ) {}
 
   async createEvent(createEventDto: CreateEventDto) {
-    const task = await this.taskModel.findById(createEventDto.taskId);
+    // Fetch the task to ensure it exists
+    const task = await this.tasksService.getTaskById(createEventDto.taskId);
 
     if (!task) {
       throw new Error('Task not found');
     }
 
+    // Check if the task is already distributed
+    if (task.isDistributed) {
+      throw new Error('Task has already been distributed on Calendar');
+    }
+
+    // Check if an event already exists for this task
+    const existingEvent = await this.getEventByTaskId(createEventDto.taskId);
+    if (existingEvent) {
+      throw new Error('Event of the Task already existed');
+    }
+
+    // Create the new event
     const newEvent = new this.eventModel({
       ...createEventDto,
       title: task.name,
     });
 
     await newEvent.save();
+
+    // Update the task to set isDistributed = true
+    await this.tasksService.updateTask(createEventDto.taskId, {
+      isDistributed: true,
+    });
+
     return newEvent;
+  }
+
+  async getEventByTaskId(taskId: string): Promise<Event> {
+    return await this.eventModel.findOne({ taskId }).exec();
   }
 
   async getEventsByUserId(userId: string): Promise<Event[]> {
@@ -42,11 +65,43 @@ export class EventsService {
       throw new Error('Event not found');
     }
 
+    // Update event fields
     if (updateEventDto.start) event.start = updateEventDto.start;
     if (updateEventDto.end) event.end = updateEventDto.end;
     if (updateEventDto.title) event.title = updateEventDto.title;
 
     await event.save();
+
+    // Fetch related task
+    const taskId = event.taskId;
+    const task = await this.tasksService.getTaskById(taskId);
+
+    if (!task) {
+      throw new Error('Task not found for the event');
+    }
+
+    // Determine new task status
+    let newTaskStatus: 'T' | 'IP' | 'C' | 'E' = 'T'; // Default to Todo
+
+    if (updateEventDto.start && updateEventDto.end) {
+      const startDate = new Date(updateEventDto.start);
+      const endDate = new Date(updateEventDto.end);
+      const deadline = task.deadline ? new Date(task.deadline) : null;
+
+      if (deadline) {
+        if (startDate > deadline) {
+          newTaskStatus = 'T'; // Start is after deadline -> Todo
+        } else if (startDate <= deadline && endDate >= deadline) {
+          newTaskStatus = 'IP'; // Between start and end -> In Progress
+        } else if (startDate < deadline && endDate < deadline) {
+          newTaskStatus = 'E'; // Both start and end before deadline -> Expired
+        }
+      }
+    }
+
+    // Update task status
+    await this.tasksService.updateTask(taskId, { status: newTaskStatus });
+
     return event;
   }
 }

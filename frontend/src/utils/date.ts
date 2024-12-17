@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { stringOrDate } from 'react-big-calendar'
 
 export function convertToDate(input: stringOrDate): Date {
@@ -13,4 +14,8 @@ export function convertToDate(input: stringOrDate): Date {
   }
 
   throw new Error('Invalid stringOrDate value: unable to convert to Date')
+}
+
+export function formatDate(date: Date): string {
+  return format(date, 'dd MMM yyyy')
 }

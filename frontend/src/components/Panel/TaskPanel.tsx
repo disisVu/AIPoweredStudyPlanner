@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { colors } from '@/styles'
+import { colors, priorityColors, statusColors } from '@/styles'
 import { Task } from '@/../../shared/src/schemas/Task'
-import { getTasksByUserId } from '@/api/tasks.api'
-import { getTextColorForBackground, getUserCredentials, stringToColor } from '@/utils'
+import { tasksApi } from '@/api/tasks.api'
+import { formatDate, getUserCredentials } from '@/utils'
 import { Event } from '@/components/Calendar/event.type'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
+import { taskPriorityLabels, taskStatusLabels } from '@/types/enum/taskLabel'
 
 interface TaskPanelProps {
   setDraggedEvent: React.Dispatch<React.SetStateAction<Event | 'undroppable' | undefined>>
@@ -27,7 +30,7 @@ export function TaskPanel({ setDraggedEvent }: TaskPanelProps) {
     const fetchTasks = async () => {
       try {
         setLoading(true)
-        const fetchedTasks = await getTasksByUserId(uid)
+        const fetchedTasks = await tasksApi.getUndistributedTasksByUserId(uid)
         console.log(fetchedTasks)
         setTasks(fetchedTasks)
       } catch {
@@ -49,15 +52,19 @@ export function TaskPanel({ setDraggedEvent }: TaskPanelProps) {
   )
 
   return (
-    <div className='w-60 px-6 py-4' style={{ color: colors.text_primary }}>
-      <div className='mb-4 flex h-10 items-center justify-start'>
-        <span className='font-medium'>Tasks</span>
+    <div
+      className='w-72 overflow-y-auto px-6 py-4'
+      style={{ maxHeight: 'calc(100vh - 56px)', color: colors.text_secondary }}
+    >
+      <div className='mb-4 flex h-10 items-center justify-start gap-3'>
+        <FontAwesomeIcon icon={faCircleCheck} size='lg' style={{ paddingBottom: '2px' }} />
+        <span className='text-md font-semibold'>Undistributed Tasks</span>
       </div>
 
       {loading && <p>Loading tasks...</p>}
       {error && <p className='text-red-500'>{error}</p>}
 
-      <ul className='space-y-2'>
+      <ul className='space-y-3'>
         {tasks.map((task) => (
           <DraggableTask
             key={task._id}
@@ -76,16 +83,49 @@ interface DraggableTaskProps {
 }
 
 function DraggableTask({ task, onDragStart }: DraggableTaskProps) {
-  const bgColor = stringToColor(task._id!)
+  console.log(task.deadline)
   return (
     <div
       draggable='true'
-      className='flex w-full items-center justify-start rounded-lg px-4 py-2'
-      style={{ backgroundColor: bgColor }}
+      className='flex w-full cursor-grab flex-col items-start justify-start gap-3 rounded-lg border border-gray-200 bg-slate-50 px-4 py-3 shadow-sm'
+      style={{ color: colors.text_primary }}
       onDragStart={() => onDragStart()}
     >
-      <span className='text-sm font-medium' style={{ color: getTextColorForBackground(bgColor) }}>
-        {task.name}
+      <div className='flex flex-row gap-2'>
+        <TaskLabel
+          label={taskPriorityLabels[task.priority]}
+          textColor={priorityColors[task.priority].textColor}
+          bgColor={priorityColors[task.priority].bgColor}
+        />
+        <TaskLabel
+          label={taskStatusLabels[task.status]}
+          textColor={statusColors[task.status].textColor}
+          bgColor={statusColors[task.status].bgColor}
+        />
+      </div>
+      <span className='line-clamp-2 text-start text-sm font-medium'>{task.name}</span>
+      <div className='flex flex-row gap-2 font-medium' style={{ color: colors.text_secondary }}>
+        <FontAwesomeIcon icon={faCalendar} />
+        <span className='text-sm'>Due Date {formatDate(task.deadline)}</span>
+      </div>
+    </div>
+  )
+}
+
+interface TaskLabelProps {
+  label: string
+  textColor: string
+  bgColor: string
+}
+
+function TaskLabel({ label, textColor, bgColor }: TaskLabelProps) {
+  return (
+    <div
+      className='flex items-center justify-center rounded-sm px-2'
+      style={{ color: textColor, backgroundColor: bgColor }}
+    >
+      <span className='font-medium' style={{ fontSize: '12px' }}>
+        {label}
       </span>
     </div>
   )

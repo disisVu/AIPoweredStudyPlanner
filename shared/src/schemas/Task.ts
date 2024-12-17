@@ -10,6 +10,7 @@ export const TaskSchema = z.object({
   status: z.enum(['T', 'IP', 'C']),
   estimatedTime: z.number().int().positive(),
   deadline: z.coerce.date(),
+  isDistributed: z.boolean().default(false),
   createdAt: z.coerce.date().default(() => new Date()),
   updatedAt: z.coerce.date(),
 })

@@ -7,11 +7,14 @@ import {
   Body,
   Param,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskGuard } from './task.guard';
+import { FilterTasksDto } from './dto/filter-task.dto';
+import { Task } from './task.schema';
 
 @Controller('tasks')
 @UseGuards(TaskGuard)
@@ -36,5 +39,27 @@ export class TasksController {
   @Delete(':id')
   deleteTask(@Param('id') id: string) {
     return this.tasksService.deleteTask(id);
+  }
+
+  @Get('filter/:userId')
+  async getFilteredTasks(
+    @Param('userId') userId: string,
+    @Query() query: FilterTasksDto,
+  ) {
+    const filters: Partial<Task> = { userId };
+
+    if (query.isDistributed !== undefined) {
+      filters.isDistributed = query.isDistributed === 'true';
+    }
+
+    if (query.priority) {
+      filters.priority = query.priority;
+    }
+
+    if (query.status) {
+      filters.status = query.status;
+    }
+
+    return await this.tasksService.getFilteredTasks(filters);
   }
 }

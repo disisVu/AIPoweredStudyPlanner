@@ -36,4 +36,12 @@ export class TasksService {
     const result = await this.taskModel.findByIdAndDelete(taskId);
     if (!result) throw new NotFoundException('Task not found');
   }
+
+  async getTaskById(taskId: string): Promise<Task> {
+    return await this.taskModel.findById(taskId).exec();
+  }
+
+  async getFilteredTasks(filters: Partial<Task>): Promise<Task[]> {
+    return await this.taskModel.find(filters).exec();
+  }
 }

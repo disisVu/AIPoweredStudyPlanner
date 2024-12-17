@@ -1,38 +1,20 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useHover } from '@/hooks'
 import { colors } from '@/styles'
-import { signOutUser } from '@/utils'
-import { useToast } from '@/hooks/use-toast'
+import { getStoredUser } from '@/utils'
 import { PanelTriggerButton } from '@/components/Panel'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import logoPng from '@/assets/logo/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
+import { DefaultAvatar } from '@/components/Avatar'
 
 export function NavBar() {
-  const { toast } = useToast()
+  const userData = getStoredUser() || { displayName: '', email: '' }
+  const navigate = useNavigate()
 
-  const handleUserSignOut = async () => {
-    try {
-      const result = await signOutUser()
-      if (result.success) {
-        toast({
-          title: 'Signed out successfully.',
-          description: 'Proceeding to Login Page.'
-        })
-      } else {
-        toast({
-          title: 'Failed to sign out.',
-          description: result.message
-        })
-      }
-    } catch (error) {
-      toast({
-        title: 'Failed to sign out.',
-        description: 'An error occured during signing out.'
-      })
-      console.log(error)
-    }
+  const navigateToHomepage = () => {
+    navigate('/')
   }
 
   return (
@@ -42,25 +24,17 @@ export function NavBar() {
     >
       <div className='flex flex-row items-center gap-4'>
         <PanelTriggerButton />
-        <div className='flex items-center gap-2'>
+        <div className='flex cursor-pointer items-center gap-2' onClick={navigateToHomepage}>
           <img src={logoPng} className='h-8' />
           <span className='text-xl font-medium' style={{ color: colors.primary }}>
             AI-Powered Study Planner
           </span>
         </div>
       </div>
-      <div className='flex flex-row items-center gap-6'>
+      <div className='flex flex-row items-center gap-4'>
         <PageSwitchButtons />
-        {/* Logout button */}
-        <div
-          style={{ backgroundColor: colors.primary }}
-          className='cursor-pointer rounded-full px-6 py-2'
-          onClick={() => {
-            handleUserSignOut()
-          }}
-        >
-          <span className='font-medium text-white'>Log Out</span>
-        </div>
+        {/* User button */}
+        <DefaultAvatar userData={userData} />
       </div>
     </div>
   )

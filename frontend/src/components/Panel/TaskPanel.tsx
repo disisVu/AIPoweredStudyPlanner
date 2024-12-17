@@ -106,7 +106,7 @@ function DraggableTask({ task, onDragStart }: DraggableTaskProps) {
       <span className='line-clamp-2 text-start text-sm font-medium'>{task.name}</span>
       <div className='flex flex-row gap-2 font-medium' style={{ color: colors.text_secondary }}>
         <FontAwesomeIcon icon={faCalendar} />
-        <span className='text-sm'>Due Date {formatDate(task.deadline)}</span>
+        <span className='text-sm'>Due on {formatDate(task.deadline)}</span>
       </div>
     </div>
   )

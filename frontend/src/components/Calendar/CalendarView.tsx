@@ -81,8 +81,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   // Custom handling for drag-over events
   const customOnDragOverFromOutside = useCallback(
     (dragEvent: React.DragEvent) => {
-      console.log('customOnDragOverFromOutside')
-
       if (draggedEvent !== 'undroppable') {
         dragEvent.preventDefault()
       }
@@ -114,8 +112,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   // Handle dropping from outside the calendar
   const onDropFromOutside = useCallback(
     async ({ start, end, allDay }: { start: Date; end: Date; allDay?: boolean }) => {
-      console.log('onDropFromOutside')
-
       if (draggedEvent === 'undroppable') {
         setDraggedEvent(undefined)
         return

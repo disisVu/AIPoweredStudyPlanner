@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthenticationLayout, MainLayout } from '@/layouts'
-import { HomePage, LoginPage, RegistrationPage, TaskSchedulingPage } from '@/pages'
+import { LoginPage, RegistrationPage, TaskSchedulingPage } from '@/pages'
 import { Toaster } from '@/components/ui/toaster'
 import { ProtectedRoute } from '@/routes/protectedRoute'
 import '@/App.css'
@@ -19,7 +19,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<HomePage />} />
+          <Route index element={<TaskSchedulingPage />} />
           <Route path='scheduling' element={<TaskSchedulingPage />} />
           <Route path='add-task' element={<TaskManagementPage />} />
         </Route>

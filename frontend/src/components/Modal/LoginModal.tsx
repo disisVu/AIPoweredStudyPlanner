@@ -141,7 +141,7 @@ export function LoginModal() {
               )}
             />
           </div>
-          <div className='flex w-full flex-col items-center'>
+          <div className='flex w-full flex-col items-center gap-5'>
             <ButtonFullWidth enabled={true} text='Confirm' onClick={handleSubmit(onSubmit)} isLoading={isLoading} />
             <ButtonFullWidth
               enabled={true}

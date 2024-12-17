@@ -78,9 +78,9 @@ function PageSwitchButtons() {
           <div
             className='cursor-pointer rounded-l-full border border-gray-400 py-2 pl-5 pr-4 hover:brightness-90'
             style={{
-              backgroundColor: isCurrentRoute('/scheduling') ? '#c2e7ff' : '#fff'
+              backgroundColor: isCurrentRoute('/task-scheduling') ? '#c2e7ff' : '#fff'
             }}
-            onClick={() => navigate('/scheduling')}
+            onClick={() => navigate('/task-scheduling')}
           >
             <FontAwesomeIcon icon={faCalendar} size='lg' />
           </div>
@@ -94,9 +94,9 @@ function PageSwitchButtons() {
           <div
             className='cursor-pointer rounded-r-full border border-gray-400 border-l-transparent py-2 pl-4 pr-5 hover:brightness-90'
             style={{
-              backgroundColor: isCurrentRoute('/add-task') ? '#c2e7ff' : '#fff'
+              backgroundColor: isCurrentRoute('/task-management') ? '#c2e7ff' : '#fff'
             }}
-            onClick={() => navigate('/add-task')}
+            onClick={() => navigate('/task-management')}
           >
             <FontAwesomeIcon icon={faCircleCheck} size='lg' />
           </div>

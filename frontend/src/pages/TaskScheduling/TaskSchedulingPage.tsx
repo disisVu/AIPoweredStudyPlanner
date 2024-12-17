@@ -9,7 +9,7 @@ export function TaskSchedulingPage() {
 
   return (
     <div className='flex w-full flex-row pr-4'>
-      <CollapsibleContent className='bg-gray-100 shadow-md transition-all duration-300 ease-in-out'>
+      <CollapsibleContent className='bg-slate-200 shadow-md transition-all duration-300 ease-in-out'>
         <TaskPanel setDraggedEvent={setDraggedEvent} />
       </CollapsibleContent>
       <div className='my-4 w-full pr-6'>

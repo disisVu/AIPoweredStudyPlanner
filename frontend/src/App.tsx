@@ -20,8 +20,8 @@ function App() {
           }
         >
           <Route index element={<TaskSchedulingPage />} />
-          <Route path='scheduling' element={<TaskSchedulingPage />} />
-          <Route path='add-task' element={<TaskManagementPage />} />
+          <Route path='task-scheduling' element={<TaskSchedulingPage />} />
+          <Route path='task-management' element={<TaskManagementPage />} />
         </Route>
         {/* Authentication routes */}
         <Route path='/auth' element={<AuthenticationLayout />}>

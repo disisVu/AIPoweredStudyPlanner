@@ -20,6 +20,12 @@ export default defineConfig({
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer]
+    },
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true
+      }
     }
-  }
+  },
+  logLevel: 'silent'
 })

@@ -1,60 +1,40 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useHover } from '@/hooks'
 import { colors } from '@/styles'
-import { signOutUser } from '@/utils'
-import { useToast } from '@/hooks/use-toast'
+import { getStoredUser } from '@/utils'
+import { PanelTriggerButton } from '@/components/Panel'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import logoPng from '@/assets/logo/logo.png'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
+import { DefaultAvatar } from '@/components/Avatar'
 
 export function NavBar() {
-  const { toast } = useToast()
+  const userData = getStoredUser() || { displayName: '', email: '' }
   const navigate = useNavigate()
 
-  const navigateToHome = () => {
+  const navigateToHomepage = () => {
     navigate('/')
-  }
-
-  const handleUserSignOut = async () => {
-    try {
-      const result = await signOutUser()
-      if (result.success) {
-        toast({
-          title: 'Signed out successfully.',
-          description: 'Proceeding to Login Page.'
-        })
-      } else {
-        toast({
-          title: 'Failed to sign out.',
-          description: result.message
-        })
-      }
-    } catch (error) {
-      toast({
-        title: 'Failed to sign out.',
-        description: 'An error occured during signing out.'
-      })
-      console.log(error)
-    }
   }
 
   return (
     <div
       style={{ width: '100vw', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}
-      className='sticky top-0 z-20 flex h-16 flex-row items-center justify-between gap-4 bg-white py-3 pl-6 pr-10'
+      className='sticky top-0 z-20 flex h-14 select-none flex-row items-center justify-between bg-white px-4 text-sm'
     >
-      <span style={{ color: colors.primary }} className='cursor-pointer font-medium' onClick={navigateToHome}>
-        AI-Powered Study Planner
-      </span>
-      <div className='flex flex-row items-center gap-10'>
-        <NavBarHyperlink label='Temp' route='/' />
-        {/* Logout button */}
-        <div
-          style={{ backgroundColor: colors.primary }}
-          className='cursor-pointer rounded-md px-4 py-2'
-          onClick={() => {
-            handleUserSignOut()
-          }}
-        >
-          <span className='font-medium text-white'>Log Out</span>
+      <div className='flex flex-row items-center gap-4'>
+        <PanelTriggerButton />
+        <div className='flex cursor-pointer items-center gap-2' onClick={navigateToHomepage}>
+          <img src={logoPng} className='h-8' />
+          <span className='text-xl font-medium' style={{ color: colors.primary }}>
+            AI-Powered Study Planner
+          </span>
         </div>
+      </div>
+      <div className='flex flex-row items-center gap-4'>
+        <PageSwitchButtons />
+        {/* User button */}
+        <DefaultAvatar userData={userData} />
       </div>
     </div>
   )
@@ -65,7 +45,7 @@ interface NavBarHyperlinkProps {
   route: string
 }
 
-function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
+export function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
   const navigate = useNavigate()
   const { isHovered, onMouseEnter, onMouseLeave } = useHover()
 
@@ -75,7 +55,7 @@ function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
 
   return (
     <span
-      style={{ color: isHovered ? colors.primary : colors.text_secondary }}
+      style={{ color: isHovered ? colors.text_primary : colors.text_secondary }}
       className='cursor-pointer font-medium'
       onClick={navigateToRoute}
       onMouseEnter={onMouseEnter}
@@ -83,5 +63,48 @@ function NavBarHyperlink({ label, route }: NavBarHyperlinkProps) {
     >
       {label}
     </span>
+  )
+}
+
+function PageSwitchButtons() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const isCurrentRoute = (path: string) => location.pathname === path
+
+  return (
+    <div className='flex flex-row'>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className='cursor-pointer rounded-l-full border border-gray-400 py-2 pl-5 pr-4 hover:brightness-90'
+            style={{
+              backgroundColor: isCurrentRoute('/task-scheduling') ? '#c2e7ff' : '#fff'
+            }}
+            onClick={() => navigate('/task-scheduling')}
+          >
+            <FontAwesomeIcon icon={faCalendar} size='lg' />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side='bottom' align='center'>
+          Switch to Calendar
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className='cursor-pointer rounded-r-full border border-gray-400 border-l-transparent py-2 pl-4 pr-5 hover:brightness-90'
+            style={{
+              backgroundColor: isCurrentRoute('/task-management') ? '#c2e7ff' : '#fff'
+            }}
+            onClick={() => navigate('/task-management')}
+          >
+            <FontAwesomeIcon icon={faCircleCheck} size='lg' />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side='bottom' align='center'>
+          Switch to Tasks
+        </TooltipContent>
+      </Tooltip>
+    </div>
   )
 }

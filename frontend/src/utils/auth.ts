@@ -5,7 +5,8 @@ import {
   GoogleAuthProvider,
   signOut,
   setPersistence,
-  browserLocalPersistence
+  browserLocalPersistence,
+  User
 } from 'firebase/auth'
 import { auth } from '@/firebase'
 import { AuthResponse } from '@/types/api/auth'
@@ -26,7 +27,7 @@ export const loginWithEmailAndPassword = async (email: string, password: string)
     // Fetch the ID token
     const idToken = await user.getIdToken()
 
-    console.log('User ID Token:', idToken)
+    storeUserCredentialsInLocalStorage(idToken, user.uid, user)
 
     // Return the user and token for further processing
     return {
@@ -79,6 +80,9 @@ export const loginWithGoogle = async (): Promise<AuthResponse> => {
     const credential = GoogleAuthProvider.credentialFromResult(result)
     const token = credential?.accessToken
     const user = result.user
+
+    storeUserCredentialsInLocalStorage(token!, user.uid, user)
+
     return {
       success: true,
       message: 'Login with Google successfully.',
@@ -116,4 +120,41 @@ export const signOutUser = async (): Promise<AuthResponse> => {
       message: errorMessage
     }
   }
+}
+
+export const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
+  try {
+    const accessToken = localStorage.getItem('accessToken')
+    const uid = localStorage.getItem('uid')
+
+    if (!accessToken) {
+      console.error('Access token not found in stored user data.')
+    }
+    if (!uid) {
+      console.error('UID not found in stored user data.')
+    }
+    return { accessToken, uid }
+  } catch (error) {
+    console.error('Error parsing user data from local storage:', error)
+    return { accessToken: null, uid: null }
+  }
+}
+
+export const storeUserCredentialsInLocalStorage = (accessToken: string, uid: string, user: User): void => {
+  localStorage.setItem('accessToken', accessToken)
+  localStorage.setItem('uid', uid)
+
+  const userData = {
+    displayName: user.displayName,
+    email: user.email
+  }
+  localStorage.setItem('authUser', JSON.stringify(userData))
+}
+
+export const getStoredUser = (): {
+  displayName: string
+  email: string
+} | null => {
+  const userData = localStorage.getItem('authUser')
+  return userData ? JSON.parse(userData) : null
 }

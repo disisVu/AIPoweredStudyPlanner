@@ -185,7 +185,7 @@ export function RegistrationModal() {
               )}
             />
           </div>
-          <div className='flex w-full flex-col items-center'>
+          <div className='flex w-full flex-col items-center gap-5'>
             <ButtonFullWidth enabled={true} text='Confirm' onClick={handleSubmit(onSubmit)} isLoading={isLoading} />
             <div className='flex flex-row gap-2 text-sm'>
               <span style={{ color: colors.text_secondary }}>Already have an account?</span>

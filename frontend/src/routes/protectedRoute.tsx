@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '@/firebase' // Adjust the path to your Firebase config
+import { auth } from '@/firebase'
 
 interface ProtectedRouteProps {
   children: React.ReactNode

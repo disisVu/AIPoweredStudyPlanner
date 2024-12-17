@@ -6,6 +6,8 @@ import configuration from '@/config/configuration';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { AuthModule } from '@/auth/auth.module';
+import { TasksModule } from '@/tasks/tasks.module';
+import { EventsModule } from '@/events/events.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { AuthModule } from '@/auth/auth.module';
     MongooseModule.forRoot(process.env.MONGO_URI),
     // Additional modules
     AuthModule,
+    TasksModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

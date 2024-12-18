@@ -1,4 +1,4 @@
-import { Event } from '@/../../shared/src/schemas/Event'
+import { Event } from '@/types/schemas/Event'
 
 export type CalendarEvent = Omit<Event, 'start_time' | 'end_time'> & {
   id: string

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { colors, priorityColors, statusColors } from '@/styles'
-import { Task } from '@/../../shared/src/schemas/Task'
+import { Task } from '@/types/schemas/Task'
 import { tasksApi } from '@/api/tasks.api'
 import { formatDate, getUserCredentials } from '@/utils'
 import { Event } from '@/components/Calendar/event.type'

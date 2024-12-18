@@ -1,6 +1,6 @@
 import { axiosPrivate as api } from '@/api/api'
 import { getUserCredentials } from '@/utils'
-import { Task } from '@/../../shared/src/schemas/Task'
+import { Task } from '@/types/schemas/Task'
 
 // Set up a request interceptor to add the Authorization header
 api.interceptors.request.use(

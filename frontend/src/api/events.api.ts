@@ -1,7 +1,7 @@
 import { axiosPrivate as api } from '@/api/api'
 import { getUserCredentials } from '@/utils'
 import { CreateEventRequest } from '@/types/api/events'
-import { Event } from '@/../../shared/src/schemas/Event'
+import { Event } from '@/types/schemas/Event'
 
 // Set up a request interceptor to add the Authorization header
 api.interceptors.request.use(

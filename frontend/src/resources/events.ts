@@ -1,5 +1,5 @@
-import { Task } from '@/../../shared/src/schemas/Task'
-import { Event } from '@/../../shared/src/schemas/Event'
+import { Task } from '@/types/schemas/Task'
+import { Event } from '@/types/schemas/Event'
 
 const tasks: Task[] = [
   {

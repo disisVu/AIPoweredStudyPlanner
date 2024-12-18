@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const axiosPrivate = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: 'https://aipoweredstudyplanner-be.onrender.com/',
   headers: {
     'Content-Type': 'application/json'
   }

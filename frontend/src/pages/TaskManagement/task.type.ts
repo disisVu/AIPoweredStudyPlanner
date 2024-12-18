@@ -14,4 +14,5 @@ export interface Task {
   status: 'T' | 'IP' | 'C'
   estimatedTime: number // minutes
   deadline: string
+  isDistributed: false
 }

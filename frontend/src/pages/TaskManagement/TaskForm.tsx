@@ -17,7 +17,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, onClose }) =
       priority: 'M',
       status: 'T',
       estimatedTime: 0,
-      deadline: ''
+      deadline: '',
+      isDistributed: false
     }
   )
 

@@ -92,7 +92,8 @@ const AddTask: React.FC<AddTaskProps> = ({ onSuccess, onFailure, onClose }) => {
             priority: 'M',
             status: 'T',
             estimatedTime: 0,
-            deadline: ''
+            deadline: '',
+            isDistributed: false
           }}
           onSubmit={handleAddTask}
           onClose={onClose}

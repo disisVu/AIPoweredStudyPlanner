@@ -94,7 +94,7 @@ export function TaskManagementModal() {
       return
     }
     try {
-      const response = await axios.get(`http://localhost:5000/tasks/${uid}`, {
+      const response = await axios.get(`https://aipoweredstudyplanner-be.onrender.com/tasks/${uid}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -118,7 +118,7 @@ export function TaskManagementModal() {
     const confirmDelete = window.confirm('Are you sure you want to delete this task?')
     if (!confirmDelete) return
     try {
-      await axios.delete(`http://localhost:5000/tasks/${taskId}`, {
+      await axios.delete(`https://aipoweredstudyplanner-be.onrender.com/tasks/${taskId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

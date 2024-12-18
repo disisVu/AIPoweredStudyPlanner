@@ -65,7 +65,7 @@ const TaskList: React.FC<TaskListProp> = ({ tasks, onDelete, onUpdate }) => {
 
   const handleUpdateTask = async (updatedTask: Task) => {
     try {
-      await axios.patch(`http://localhost:5000/tasks/${updatedTask.id}`, updatedTask, {
+      await axios.patch(`https://aipoweredstudyplanner-be.onrender.com/tasks/${updatedTask.id}`, updatedTask, {
         headers: {
           Authorization: `Bearer ${token}`
         }

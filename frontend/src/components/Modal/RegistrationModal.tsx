@@ -36,7 +36,7 @@ export function RegistrationModal() {
   const onSubmit: SubmitHandler<RegistrationFormInputs> = async (data: RegistrationFormInputs) => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:5000/auth/register', {
+      const response = await fetch('https://aipoweredstudyplanner-be.onrender.com/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

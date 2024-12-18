@@ -51,7 +51,7 @@ const AddTask: React.FC<AddTaskProps> = ({ onSuccess, onFailure, onClose }) => {
   const handleAddTask = async (task: Task) => {
     try {
       await axios.post(
-        'http://localhost:5000/tasks',
+        'https://aipoweredstudyplanner-be.onrender.com/tasks',
         { ...task, userId: uid },
         {
           headers: {

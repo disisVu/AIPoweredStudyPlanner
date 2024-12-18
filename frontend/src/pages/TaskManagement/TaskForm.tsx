@@ -8,7 +8,7 @@ interface TaskFormProps {
   onClose: () => void
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, onClose }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit }) => {
   const [task, setTask] = useState<Task>(
     initialTask || {
       id: '',

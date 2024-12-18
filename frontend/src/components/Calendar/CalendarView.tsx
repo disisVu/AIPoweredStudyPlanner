@@ -9,8 +9,9 @@ import '@/styles/calendarView.scss'
 
 import { CustomToolbar } from '@/components/Calendar'
 import { Event } from './event.type'
+import { Event as ZodEvent } from '@/types/schemas'
 import { convertToDate, getUserCredentials } from '@/utils'
-import { CreateEventRequest } from '../../types/api/events'
+import { CreateEventRequest } from '@/types/api/events'
 import { eventsApi } from '@/api/events.api'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
@@ -48,12 +49,13 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         const fetchedEvents = await eventsApi.getEventsByUserId(userId)
 
         // Ensure start and end are Date objects
-        const formattedEvents = fetchedEvents.map((event: any) => ({
-          _id: event._id,
-          title: event.title,
+        const formattedEvents = fetchedEvents.map((event: ZodEvent) => ({
+          ...event,
+          _id: event._id ?? '',
           start: new Date(event.start),
           end: new Date(event.end),
-          isDraggable: true
+          isDraggable: true,
+          isAllDay: false
         }))
 
         setMyEvents(formattedEvents)
@@ -74,33 +76,54 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   )
 
   // Provide the dragged event from outside
-  const dragFromOutsideItem = useCallback((): Event | null => {
-    return draggedEvent === 'undroppable' ? null : (draggedEvent ?? null)
-  }, [draggedEvent])
+  const dragFromOutsideItem = useCallback((): keyof Event | ((event: Event) => Date) => {
+    // if (draggedEvent === 'undroppable') {
+    //   return undefined
+    // }
+
+    // Option 1: Return a key like 'start' or 'end'
+    return 'start'
+  }, [])
 
   // Custom handling for drag-over events
-  const customOnDragOverFromOutside = useCallback(
-    (dragEvent: React.DragEvent) => {
-      if (draggedEvent !== 'undroppable') {
-        dragEvent.preventDefault()
-      }
-    },
-    [draggedEvent]
-  )
+  // const customOnDragOverFromOutside = useCallback(
+  //   (dragEvent: React.DragEvent) => {
+  //     if (draggedEvent !== 'undroppable') {
+  //       dragEvent.preventDefault()
+  //     }
+  //   },
+  //   [draggedEvent]
+  // )
 
   // Move an event to a new position
   const moveEvent = useCallback(
     async ({ event, start, end, isAllDay: droppedOnAllDaySlot = false }: EventInteractionArgs<Event>) => {
       try {
+        // Update the event on the server
         await eventsApi.updateEvent(event._id, {
           start: convertToDate(start),
           end: convertToDate(end)
         })
 
+        // Update the state
         setMyEvents((prev) => {
-          const existing = prev.find((ev) => ev._id === event._id) ?? {}
+          // Find the existing event in the state
+          const existing = prev.find((ev) => ev._id === event._id)
+
+          // If the event doesn't exist in the state, return the previous state unchanged
+          if (!existing) return prev
+
+          // Create a new event object with the updated fields
+          const updatedEvent = {
+            ...existing,
+            start: convertToDate(start),
+            end: convertToDate(end),
+            isAllDay: droppedOnAllDaySlot
+          }
+
+          // Remove the old event and add the updated event
           const filtered = prev.filter((ev) => ev._id !== event._id)
-          return [...filtered, { ...existing, start, end, allDay: droppedOnAllDaySlot }]
+          return [...filtered, updatedEvent]
         })
       } catch (error) {
         console.error('Failed to update event:', error)
@@ -111,7 +134,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
 
   // Handle dropping from outside the calendar
   const onDropFromOutside = useCallback(
-    async ({ start, end, allDay }: { start: Date; end: Date; allDay?: boolean }) => {
+    async ({ start, end, allDay }: { start: string | Date; end: string | Date; allDay?: boolean }) => {
       if (draggedEvent === 'undroppable') {
         setDraggedEvent(undefined)
         return
@@ -119,12 +142,16 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
 
       const { taskId, title } = draggedEvent as Event
 
+      // Ensure that start and end are Date objects
+      const startDate = new Date(start)
+      const endDate = new Date(end)
+
       // Prepare the event data for the API request
       const eventData: CreateEventRequest = {
         taskId,
         userId: userId!,
-        start,
-        end
+        start: startDate,
+        end: endDate
       }
 
       try {
@@ -139,8 +166,8 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
             taskId,
             userId: userId!,
             title,
-            start,
-            end,
+            start: startDate,
+            end: endDate,
             isAllDay: allDay || false,
             isDraggable: true
           } as Event
@@ -158,15 +185,30 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   // Resize an event
   const resizeEvent = useCallback(async ({ event, start, end }: EventInteractionArgs<Event>) => {
     try {
+      // Update the event on the server
       await eventsApi.updateEvent(event._id, {
         start: convertToDate(start),
         end: convertToDate(end)
       })
 
+      // Update the state
       setMyEvents((prev) => {
-        const existing = prev.find((ev) => ev._id === event._id) ?? {}
+        // Find the existing event in the state
+        const existing = prev.find((ev) => ev._id === event._id)
+
+        // If the event doesn't exist, just return the previous state unchanged
+        if (!existing) return prev
+
+        // Update the existing event with new start and end values
+        const updatedEvent = {
+          ...existing,
+          start: convertToDate(start),
+          end: convertToDate(end)
+        }
+
+        // Filter out the old event and return the updated event
         const filtered = prev.filter((ev) => ev._id !== event._id)
-        return [...filtered, { ...existing, start, end }]
+        return [...filtered, updatedEvent]
       })
     } catch (error) {
       console.error('Failed to update event:', error)
@@ -187,7 +229,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         draggableAccessor={(event: Event) => !!event.isDraggable}
         eventPropGetter={eventPropGetter}
         onDropFromOutside={onDropFromOutside}
-        onDragOverFromOutside={customOnDragOverFromOutside}
         onEventDrop={moveEvent}
         onEventResize={resizeEvent}
         resizable

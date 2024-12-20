@@ -1,4 +1,4 @@
-export interface CreateEventRequest {
+export interface CreateEventDto {
   taskId: string
   userId: string
   start: Date

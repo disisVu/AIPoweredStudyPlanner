@@ -3,6 +3,7 @@ import { colors, priorityColors, statusColors } from '@/styles'
 import { Task } from '@/types/schemas/Task'
 import { tasksApi } from '@/api/tasks.api'
 import { formatDate, getUserCredentials } from '@/utils'
+import { TaskBadge } from '@/components/Badge'
 import { Event } from '@/components/Calendar/event.type'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
@@ -92,12 +93,12 @@ function DraggableTask({ task, onDragStart }: DraggableTaskProps) {
       onDragStart={() => onDragStart()}
     >
       <div className='flex flex-row gap-2'>
-        <TaskLabel
+        <TaskBadge
           label={taskPriorityLabels[task.priority]}
           textColor={priorityColors[task.priority].textColor}
           bgColor={priorityColors[task.priority].bgColor}
         />
-        <TaskLabel
+        <TaskBadge
           label={taskStatusLabels[task.status]}
           textColor={statusColors[task.status].textColor}
           bgColor={statusColors[task.status].bgColor}
@@ -108,25 +109,6 @@ function DraggableTask({ task, onDragStart }: DraggableTaskProps) {
         <FontAwesomeIcon icon={faCalendar} />
         <span className='text-sm'>Due on {formatDate(task.deadline)}</span>
       </div>
-    </div>
-  )
-}
-
-interface TaskLabelProps {
-  label: string
-  textColor: string
-  bgColor: string
-}
-
-function TaskLabel({ label, textColor, bgColor }: TaskLabelProps) {
-  return (
-    <div
-      className='flex items-center justify-center rounded-sm px-2'
-      style={{ color: textColor, backgroundColor: bgColor }}
-    >
-      <span className='font-medium' style={{ fontSize: '12px' }}>
-        {label}
-      </span>
     </div>
   )
 }

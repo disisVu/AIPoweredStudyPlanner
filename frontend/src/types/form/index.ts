@@ -1,2 +1,3 @@
-export * from '@/types/form/loginFormInputs'
-export * from '@/types/form/registrationFormInputs'
+export * from './loginFormInputs'
+export * from './registrationFormInputs'
+export * from './filterTaskFormInputs'

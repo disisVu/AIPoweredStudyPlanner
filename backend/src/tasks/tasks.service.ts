@@ -42,6 +42,31 @@ export class TasksService {
   }
 
   async getFilteredTasks(filters: Partial<Task>): Promise<Task[]> {
-    return await this.taskModel.find(filters).exec();
+    const query: any = { ...filters };
+
+    // If there's a name filter, apply regex for case-insensitive matching
+    if (filters.name) {
+      query.name = { $regex: new RegExp(filters.name, 'i') }; // 'i' for case-insensitive match
+    }
+
+    // If there's a deadline filter, handle it as an exact date match (ignoring the time)
+    if (filters.deadline) {
+      const deadlineDate = new Date(filters.deadline);
+
+      // Check if the deadline is a valid date
+      if (!isNaN(deadlineDate.getTime())) {
+        // Normalize the deadline to ignore time by setting hours, minutes, seconds, and milliseconds to 0
+        const startOfDay = new Date(deadlineDate.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(deadlineDate.setHours(23, 59, 59, 999));
+
+        query.deadline = {
+          $gte: startOfDay, // Start of the day (00:00:00)
+          $lt: endOfDay, // End of the day (23:59:59)
+        };
+      }
+    }
+
+    // Perform the query with filters
+    return await this.taskModel.find(query).exec();
   }
 }

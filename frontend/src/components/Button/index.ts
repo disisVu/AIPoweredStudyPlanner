@@ -1,1 +1,1 @@
-export * from '@/components/Button/ButtonFullWidth'
+export * from './ButtonFullWidth'

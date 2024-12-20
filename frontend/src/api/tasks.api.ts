@@ -1,6 +1,7 @@
 import { axiosPrivate as api } from '@/api/api'
 import { getUserCredentials } from '@/utils'
 import { Task } from '@/types/schemas/Task'
+import { CreateTaskDto, FilterTaskDto } from '@/types/api/tasks'
 
 // Set up a request interceptor to add the Authorization header
 api.interceptors.request.use(
@@ -20,6 +21,15 @@ api.interceptors.request.use(
     return Promise.reject(error)
   }
 )
+
+const createTask = async (createTaskDto: CreateTaskDto): Promise<Task[]> => {
+  try {
+    const response = await api.post('/tasks', createTaskDto)
+    return response.data
+  } catch {
+    throw new Error('Error: Create new task')
+  }
+}
 
 const getTasksByUserId = async (userId: string): Promise<Task[]> => {
   try {
@@ -43,4 +53,17 @@ const getUndistributedTasksByUserId = async (userId: string): Promise<Task[]> =>
   }
 }
 
-export const tasksApi = { getTasksByUserId, getUndistributedTasksByUserId }
+const getFilteredTasks = async (userId: string, filters: FilterTaskDto) => {
+  try {
+    // Make the API request with query parameters
+    const response = await api.get(`/tasks/filter/${userId}`, {
+      params: filters
+    })
+    return response.data // return filtered tasks
+  } catch (error) {
+    console.error('Error fetching filtered tasks:', error)
+    throw new Error('Error: Unable to fetch filtered tasks')
+  }
+}
+
+export const tasksApi = { createTask, getTasksByUserId, getUndistributedTasksByUserId, getFilteredTasks }

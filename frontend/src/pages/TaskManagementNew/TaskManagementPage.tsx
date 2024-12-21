@@ -3,13 +3,16 @@ import { TaskFilterModule, TaskListModule } from '@/pages/TaskManagementNew/comp
 import { colors } from '@/styles'
 import { faCheckCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState } from 'react'
-import { Task } from '@/types/schemas'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState, AppDispatch } from '@/store'
 import { getUserCredentials } from '@/utils'
 import { tasksApi } from '@/api/tasks.api'
 import { FilterTaskDto } from '@/types/api/tasks'
+import { setTasks } from '@/store/reducers/taskSlice'
 
 export function TaskManagementPage() {
-  const [tasks, setTasks] = useState<Task[]>([])
+  const dispatch = useDispatch<AppDispatch>()
+  const tasks = useSelector((state: RootState) => state.tasks.tasks)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -27,7 +30,7 @@ export function TaskManagementPage() {
       try {
         setLoading(true)
         const fetchedTasks = await tasksApi.getFilteredTasks(uid, {})
-        setTasks(fetchedTasks)
+        dispatch(setTasks(fetchedTasks))
       } catch {
         setError('Failed to load tasks.')
       } finally {
@@ -36,7 +39,7 @@ export function TaskManagementPage() {
     }
 
     fetchTasks()
-  }, [])
+  }, [dispatch])
 
   // This function will be triggered when filters are applied
   const handleFilterChange = async (filters: FilterTaskDto) => {
@@ -51,7 +54,7 @@ export function TaskManagementPage() {
       setLoading(true)
       // console.log(filters.deadline)
       const filteredTasks = await tasksApi.getFilteredTasks(uid, filters)
-      setTasks(filteredTasks)
+      dispatch(setTasks(filteredTasks))
     } catch {
       setError('Failed to load filtered tasks.')
     } finally {
@@ -60,11 +63,11 @@ export function TaskManagementPage() {
   }
 
   return (
-    <div className='flex min-h-[calc(100vh-56px)] w-full justify-center bg-blue-100 px-12 py-8'>
+    <div className='flex min-h-[calc(100vh-56px)] w-full justify-center bg-blue-100 px-12 py-6'>
       <div className='grid w-full grid-cols-12 gap-x-4'>
         {/*Task Management Section */}
         <div className='col-span-8 flex flex-col gap-4'>
-          <div className='flex items-center gap-x-4' style={{ color: colors.text_primary }}>
+          <div className='flex items-center gap-x-4' style={{ color: colors.tertiary }}>
             <FontAwesomeIcon icon={faCheckCircle} size='2xl' />
             <span className='text-3xl font-medium'>Task Management</span>
           </div>
@@ -81,11 +84,9 @@ export function TaskManagementPage() {
         {/*Task Management Section */}
         <div className='col-span-4 flex h-full flex-col gap-4'>
           <div className='flex items-center justify-center'>
-            <div className='flex flex-row items-center gap-x-4'>
+            <div className='flex flex-row items-center gap-x-4' style={{ color: colors.tertiary }}>
               <FontAwesomeIcon icon={faLightbulb} size='2xl' />
-              <span className='text-3xl font-medium' style={{ color: colors.text_primary }}>
-                AI Suggestions
-              </span>
+              <span className='text-3xl font-medium'>AI Suggestions</span>
             </div>
           </div>
           <div className='h-full rounded-xl border border-gray-200 bg-white shadow-sm'>

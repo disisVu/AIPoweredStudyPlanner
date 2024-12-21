@@ -1,7 +1,7 @@
 import { axiosPrivate as api } from '@/api/api'
 import { getUserCredentials } from '@/utils'
 import { Task } from '@/types/schemas/Task'
-import { CreateTaskDto, FilterTaskDto } from '@/types/api/tasks'
+import { CreateTaskDto, FilterTaskDto, UpdateTaskDto } from '@/types/api/tasks'
 
 // Set up a request interceptor to add the Authorization header
 api.interceptors.request.use(
@@ -22,12 +22,30 @@ api.interceptors.request.use(
   }
 )
 
-const createTask = async (createTaskDto: CreateTaskDto): Promise<Task[]> => {
+const createTask = async (createTaskDto: CreateTaskDto): Promise<Task> => {
   try {
+    console.log(createTaskDto)
     const response = await api.post('/tasks', createTaskDto)
     return response.data
   } catch {
     throw new Error('Error: Create new task')
+  }
+}
+
+const updateTask = async (taskId: string, updateTaskDto: UpdateTaskDto): Promise<Task> => {
+  try {
+    const response = await api.patch(`/tasks/${taskId}`, updateTaskDto)
+    return response.data
+  } catch {
+    throw new Error('Error: Edit task')
+  }
+}
+
+const deleteTask = async (taskId: string) => {
+  try {
+    await api.delete(`/tasks/${taskId}`)
+  } catch {
+    throw new Error('Error: Delete task')
   }
 }
 
@@ -66,4 +84,11 @@ const getFilteredTasks = async (userId: string, filters: FilterTaskDto) => {
   }
 }
 
-export const tasksApi = { createTask, getTasksByUserId, getUndistributedTasksByUserId, getFilteredTasks }
+export const tasksApi = {
+  createTask,
+  updateTask,
+  deleteTask,
+  getTasksByUserId,
+  getUndistributedTasksByUserId,
+  getFilteredTasks
+}

@@ -9,10 +9,11 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { TaskTablePagination } from '@/pages/TaskManagementNew/components'
+import { CreateTaskModal, TaskTablePagination } from '@/pages/TaskManagementNew/components'
 import { colors } from '@/styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -37,17 +38,25 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
   return (
     <div className='flex h-full flex-col rounded-md border-t'>
       {/* Header Section */}
-      <div className='h-16 rounded-t-lg border-b border-gray-200 px-4 py-3'>
-        <div className='grid h-10 grid-cols-12 items-center gap-4'>
+      <div className='h-12 rounded-t-lg border-b border-gray-200 px-4 py-2'>
+        <div className='grid h-8 grid-cols-12 items-center gap-4'>
           <span className='col-span-10 text-left text-sm font-medium' style={{ color: colors.text_secondary }}>
             Results: {data.length}
           </span>
-          <div
-            className='col-span-2 flex h-full cursor-pointer items-center justify-center gap-4 rounded-md px-4 text-white hover:brightness-110'
-            style={{ backgroundColor: colors.primary }}
-          >
-            <FontAwesomeIcon icon={faPlus} className='pb-[2px]' />
-            <span className='text-sm font-medium text-white'>Create Task</span>
+          <div className='col-span-2 flex items-center justify-end'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <div
+                  className='flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 hover:border-gray-200 hover:bg-gray-200'
+                  style={{ color: colors.text_primary }}
+                >
+                  <FontAwesomeIcon icon={faPlus} className='pb-[2px]' />
+                </div>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[540px]'>
+                <CreateTaskModal />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -101,7 +110,7 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
         </TableBody>
       </Table>
       {/* Pagination Section */}
-      <div className='min-h-16 w-full border-t px-2 py-4'>
+      <div className='flex min-h-16 w-full items-center justify-end border-t px-2 py-3'>
         <TaskTablePagination table={table} />
       </div>
     </div>

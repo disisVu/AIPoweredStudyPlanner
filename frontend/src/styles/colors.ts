@@ -4,7 +4,7 @@ const colors = {
   gradient: 'linear-gradient(-135deg, aqua, darkblue)',
   primary: '#065ad7',
   secondary: '#0784C3',
-  tertiary: '#039be5',
+  tertiary: '#1A3D7C',
   text_primary: '#212529',
   text_secondary: '#6C757D',
   button_secondary: '#eee',

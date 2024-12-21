@@ -7,7 +7,7 @@ export const TaskSchema = z.object({
   name: z.string(),
   description: z.string(),
   priority: z.enum(['H', 'M', 'L']),
-  status: z.enum(['T', 'IP', 'C']),
+  status: z.enum(['T', 'IP', 'C', 'E']),
   estimatedTime: z.number().int().positive(),
   deadline: z.coerce.date(),
   isDistributed: z.boolean().default(false),

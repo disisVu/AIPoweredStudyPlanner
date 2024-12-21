@@ -1,1 +1,1 @@
-export * from '@/components/Bar/PasswordComplexityBar'
+export * from './PasswordComplexityBar'

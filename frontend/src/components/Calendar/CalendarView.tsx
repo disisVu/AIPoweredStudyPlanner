@@ -11,7 +11,7 @@ import { CustomToolbar } from '@/components/Calendar'
 import { Event } from './event.type'
 import { Event as ZodEvent } from '@/types/schemas'
 import { convertToDate, getUserCredentials } from '@/utils'
-import { CreateEventRequest } from '@/types/api/events'
+import { CreateEventDto } from '@/types/api/events'
 import { eventsApi } from '@/api/events.api'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
@@ -28,7 +28,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   useEffect(() => {
     if (!userId) {
       const { uid } = getUserCredentials()
-      console.log(uid)
       setUserId(uid)
     }
   }, [userId])
@@ -147,7 +146,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
       const endDate = new Date(end)
 
       // Prepare the event data for the API request
-      const eventData: CreateEventRequest = {
+      const eventData: CreateEventDto = {
         taskId,
         userId: userId!,
         start: startDate,

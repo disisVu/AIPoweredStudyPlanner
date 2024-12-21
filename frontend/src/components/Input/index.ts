@@ -1,2 +1,3 @@
-export * from '@/components/Input/FormInput'
-export * from '@/components/Input/PasswordInput'
+export * from './FormInput'
+export * from './PasswordInput'
+export * from './SearchBar'

@@ -78,7 +78,7 @@ function PageSwitchButtons() {
           <div
             className='cursor-pointer rounded-l-full border border-gray-400 py-2 pl-5 pr-4 hover:brightness-90'
             style={{
-              backgroundColor: isCurrentRoute('/task-scheduling') ? '#c2e7ff' : '#fff'
+              backgroundColor: isCurrentRoute('/task-scheduling') || isCurrentRoute('/') ? '#c2e7ff' : '#fff'
             }}
             onClick={() => navigate('/task-scheduling')}
           >

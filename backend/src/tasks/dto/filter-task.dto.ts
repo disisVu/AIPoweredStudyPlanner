@@ -2,8 +2,8 @@ import { IsString, IsOptional, IsBooleanString } from 'class-validator';
 
 export class FilterTasksDto {
   @IsOptional()
-  @IsBooleanString()
-  isDistributed?: string;
+  @IsString()
+  name?: string;
 
   @IsOptional()
   @IsString()
@@ -12,4 +12,11 @@ export class FilterTasksDto {
   @IsOptional()
   @IsString()
   status?: 'T' | 'IP' | 'C' | 'E';
+
+  @IsOptional()
+  deadline?: Date;
+
+  @IsOptional()
+  @IsBooleanString()
+  isDistributed?: string;
 }

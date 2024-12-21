@@ -1,6 +1,6 @@
 import { axiosPrivate as api } from '@/api/api'
 import { getUserCredentials } from '@/utils'
-import { CreateEventRequest } from '@/types/api/events'
+import { CreateEventDto } from '@/types/api/events'
 import { Event } from '@/types/schemas/Event'
 
 // Set up a request interceptor to add the Authorization header
@@ -22,9 +22,9 @@ api.interceptors.request.use(
   }
 )
 
-const createEvent = async (eventData: CreateEventRequest): Promise<Event> => {
+const createEvent = async (createEventDto: CreateEventDto): Promise<Event> => {
   try {
-    const response = await api.post('/events', eventData)
+    const response = await api.post('/events', createEventDto)
     return response.data
   } catch {
     throw new Error('Error: Create event')
@@ -40,9 +40,9 @@ const getEventsByUserId = async (userId: string): Promise<Event[]> => {
   }
 }
 
-const updateEvent = async (eventId: string, eventData: Partial<Event>): Promise<Event> => {
+const updateEvent = async (eventId: string, updateEventDto: Partial<CreateEventDto>): Promise<Event> => {
   try {
-    const response = await api.put(`/events/${eventId}`, eventData)
+    const response = await api.put(`/events/${eventId}`, updateEventDto)
     return response.data
   } catch {
     throw new Error('Error: Update event')

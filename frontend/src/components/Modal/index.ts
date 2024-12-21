@@ -1,2 +1,2 @@
-export * from '@/components/Modal/LoginModal'
-export * from '@/components/Modal/RegistrationModal'
+export * from './LoginModal'
+export * from './RegistrationModal'

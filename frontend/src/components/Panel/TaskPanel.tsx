@@ -32,7 +32,6 @@ export function TaskPanel({ setDraggedEvent }: TaskPanelProps) {
       try {
         setLoading(true)
         const fetchedTasks = await tasksApi.getUndistributedTasksByUserId(uid)
-        console.log(fetchedTasks)
         setTasks(fetchedTasks)
       } catch {
         setError('Failed to load tasks.')
@@ -84,7 +83,6 @@ interface DraggableTaskProps {
 }
 
 function DraggableTask({ task, onDragStart }: DraggableTaskProps) {
-  console.log(task.deadline)
   return (
     <div
       draggable='true'

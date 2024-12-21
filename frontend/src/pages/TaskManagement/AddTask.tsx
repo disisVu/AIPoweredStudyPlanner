@@ -36,8 +36,6 @@ const AddTask: React.FC<AddTaskProps> = ({ onSuccess, onFailure, onClose }) => {
       } else if (!uid) {
         console.error('UID not found in stored user data.')
       } else {
-        console.log(accessToken)
-        console.log(uid)
         setUid(uid)
         setToken(accessToken)
       }

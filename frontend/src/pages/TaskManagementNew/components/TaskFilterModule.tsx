@@ -20,7 +20,7 @@ export function TaskFilterModule({ onFilterChange, onClearFilters }: TaskFilterM
     name: undefined,
     priority: undefined,
     status: undefined,
-    deadline: new Date()
+    deadline: undefined
   }
 
   const { control, handleSubmit, reset } = useForm<FilterTaskDto>({

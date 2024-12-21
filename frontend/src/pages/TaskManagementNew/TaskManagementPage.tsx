@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { TaskFilterModule, TaskListModule } from '@/pages/TaskManagementNew/components'
 import { colors } from '@/styles'
 import { faCheckCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '@/store'
 import { getUserCredentials } from '@/utils'
@@ -13,28 +13,22 @@ import { setTasks } from '@/store/reducers/taskSlice'
 export function TaskManagementPage() {
   const dispatch = useDispatch<AppDispatch>()
   const tasks = useSelector((state: RootState) => state.tasks.tasks)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const { uid } = getUserCredentials()
 
     // If uid is null or not found, stop the process and show an error
     if (!uid) {
-      setError('User ID is missing or invalid.')
       return
     }
 
     // Fetch all tasks when the component first loads
     const fetchTasks = async () => {
       try {
-        setLoading(true)
         const fetchedTasks = await tasksApi.getFilteredTasks(uid, {})
         dispatch(setTasks(fetchedTasks))
       } catch {
-        setError('Failed to load tasks.')
-      } finally {
-        setLoading(false)
+        console.log('Error: Failed to fetch tasks.')
       }
     }
 
@@ -46,19 +40,14 @@ export function TaskManagementPage() {
     const { uid } = getUserCredentials()
 
     if (!uid) {
-      setError('User ID is missing or invalid.')
       return
     }
 
     try {
-      setLoading(true)
-      // console.log(filters.deadline)
       const filteredTasks = await tasksApi.getFilteredTasks(uid, filters)
       dispatch(setTasks(filteredTasks))
     } catch {
-      setError('Failed to load filtered tasks.')
-    } finally {
-      setLoading(false)
+      console.log('Error: Failed to filter tasks.')
     }
   }
 

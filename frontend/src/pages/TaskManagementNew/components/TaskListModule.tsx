@@ -15,7 +15,6 @@ export function TaskListModule({ tasks }: TaskListModuleProps) {
   const handleDeleteTask = async (taskId: string) => {
     await tasksApi.deleteTask(taskId)
     dispatch(removeTask(taskId))
-    console.log(taskId)
   }
 
   return (

@@ -28,7 +28,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   useEffect(() => {
     if (!userId) {
       const { uid } = getUserCredentials()
-      console.log(uid)
       setUserId(uid)
     }
   }, [userId])

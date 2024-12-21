@@ -24,7 +24,6 @@ api.interceptors.request.use(
 
 const createTask = async (createTaskDto: CreateTaskDto): Promise<Task> => {
   try {
-    console.log(createTaskDto)
     const response = await api.post('/tasks', createTaskDto)
     return response.data
   } catch {

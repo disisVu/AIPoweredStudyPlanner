@@ -31,9 +31,18 @@ const createEvent = async (createEventDto: CreateEventDto): Promise<Event> => {
   }
 }
 
+const getEventById = async (eventId: string): Promise<Event> => {
+  try {
+    const response = await api.get(`/events/event/${eventId}`)
+    return response.data
+  } catch {
+    throw new Error('Error: Get event by ID')
+  }
+}
+
 const getEventsByUserId = async (userId: string): Promise<Event[]> => {
   try {
-    const response = await api.get(`/events/${userId}`)
+    const response = await api.get(`/events/user/${userId}`)
     return response.data
   } catch {
     throw new Error('Error: Get events by user ID')
@@ -49,4 +58,4 @@ const updateEvent = async (eventId: string, updateEventDto: Partial<CreateEventD
   }
 }
 
-export const eventsApi = { createEvent, getEventsByUserId, updateEvent }
+export const eventsApi = { createEvent, getEventById, getEventsByUserId, updateEvent }

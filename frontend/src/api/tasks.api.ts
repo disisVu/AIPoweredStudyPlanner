@@ -70,7 +70,7 @@ const getUndistributedTasksByUserId = async (userId: string): Promise<Task[]> =>
   try {
     const response = await api.get(`/tasks/filter/${userId}`, {
       params: {
-        isDistributed: false
+        status: 'T'
       }
     })
     return response.data

@@ -159,6 +159,7 @@ export function CreateTaskModal() {
                 type='number'
                 id='estimatedTime'
                 value={value}
+                min={1}
                 onChange={(e) => onChange(Number(e.target.value))}
                 className='col-span-3'
               />

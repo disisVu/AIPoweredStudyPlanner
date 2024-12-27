@@ -15,6 +15,9 @@ import { convertToDate, getUserCredentials } from '@/utils'
 import { CreateEventDto } from '@/types/api/events'
 import { eventsApi } from '@/api/events.api'
 import { FocusTimerModal } from '@/components/Modal'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../store'
+import { setCurrentEventId } from '../../store/reducers/sessionSlice'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
 
@@ -204,14 +207,18 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   // Default date for the calendar
   const { defaultDate } = useMemo(() => ({ defaultDate: new Date() }), [])
 
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const dispatch = useDispatch<AppDispatch>()
+  const currentEventId = useSelector((state: RootState) => state.session.currentEventId)
+  const timerIsRunning = useSelector((state: RootState) => state.session.timerIsRunning)
 
   const handleSelectEvent = (event: Event) => {
-    setSelectedEvent(event)
+    dispatch(setCurrentEventId(event._id))
   }
 
-  const closeFocusTimerDialog = () => {
-    setSelectedEvent(null)
+  const handleOpenChange = () => {
+    if (!timerIsRunning) {
+      dispatch(setCurrentEventId(''))
+    }
   }
 
   return (
@@ -232,9 +239,9 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         components={{ toolbar: CustomToolbar }}
         onSelectEvent={handleSelectEvent}
       />
-      <Dialog open={!!selectedEvent} onOpenChange={closeFocusTimerDialog}>
-        <DialogContent className='focus:outline-none [&>button]:hidden'>
-          {selectedEvent && <FocusTimerModal event={selectedEvent} />}
+      <Dialog open={currentEventId !== '' || timerIsRunning} onOpenChange={handleOpenChange}>
+        <DialogContent className='min-w-fit focus:outline-none [&>button]:hidden'>
+          <FocusTimerModal />
         </DialogContent>
       </Dialog>
     </div>

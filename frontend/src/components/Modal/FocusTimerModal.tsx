@@ -19,7 +19,7 @@ import { AppDispatch, RootState } from '@/store'
 import { setTimerIsRunning } from '@/store/reducers/sessionSlice'
 import { eventsApi } from '@/api/events.api'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
-import { getUserCredentials } from '@/utils'
+import { formatFocusTimer, getUserCredentials } from '@/utils'
 import { CreateFocusTimerDto } from '@/types/api/focusTimers'
 import { focusTimersApi } from '@/api/focusTimers.api'
 import { usersApi } from '@/api/users.api'
@@ -46,9 +46,27 @@ export function FocusTimerModal() {
   const [isFocusPhase, setIsFocusPhase] = useState(true)
   const [focusDuration, setFocusDuration] = useState(10)
   const [breakDuration, setBreakDuration] = useState(2)
-  const [remainingTime, setRemainingTime] = useState(focusDuration)
-
+  const [timeSpent, setTimeSpent] = useState(0)
+  const [remainingTime, setRemainingTime] = useState(10 * 60)
   const [defaultValues, setDefaultValues] = useState<CreateFocusTimerDto | null>(null)
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isValid }
+  } = useForm<CreateFocusTimerDto>({
+    defaultValues: defaultValues || {
+      userId: uid!,
+      taskId: '',
+      focusDuration: focusDuration,
+      breakDuration: breakDuration,
+      remainingTime: remainingTime,
+      timeSpent: 0,
+      isActive: false
+    },
+    mode: 'onChange'
+  })
 
   // Fetch user ID
   useEffect(() => {
@@ -73,14 +91,32 @@ export function FocusTimerModal() {
         if (fetchedEvent && fetchedEvent.taskId) {
           const fetchedTask = await tasksApi.getTasksByTaskId(fetchedEvent.taskId)
           setTask(fetchedTask)
-          setDefaultValues({
+          const fetchedFocusTimer = await focusTimersApi.getFocusTimerByTaskId(fetchedTask._id!)
+          console.log(fetchedFocusTimer)
+          setFocusDuration(fetchedFocusTimer.focusDuration / 60)
+          setBreakDuration(fetchedFocusTimer.breakDuration / 60)
+          setRemainingTime(fetchedFocusTimer.remainingTime)
+          setTimeSpent(fetchedFocusTimer.timeSpent)
+          setDefaultValues(
+            (prev) =>
+              ({
+                ...prev,
+                taskId: fetchedTask._id!,
+                focusDuration: fetchedFocusTimer.focusDuration / 60,
+                breakDuration: fetchedFocusTimer.breakDuration / 60,
+                remainingTime: fetchedFocusTimer.remainingTime,
+                timeSpent: fetchedFocusTimer.timeSpent,
+                isActive: false
+              }) as CreateFocusTimerDto
+          )
+          reset({
             userId: uid!,
             taskId: fetchedTask._id!,
             eventId: currentEventId,
-            focusDuration: focusDuration,
-            breakDuration: breakDuration,
-            remainingTime: focusDuration,
-            timeSpent: 0,
+            focusDuration: fetchedFocusTimer.focusDuration / 60,
+            breakDuration: fetchedFocusTimer.breakDuration / 60,
+            remainingTime: fetchedFocusTimer.remainingTime,
+            timeSpent: fetchedFocusTimer.timeSpent,
             isActive: false
           })
         }
@@ -99,70 +135,62 @@ export function FocusTimerModal() {
   }, [])
 
   useEffect(() => {
-    const fetchActiveFocusTimer = async () => {
-      try {
-        if (timerIsRunning && uid) {
-          const activeFocusTimer = await usersApi.getActiveFocusTimer(uid)
-          if (activeFocusTimer) {
-            console.log('active focus timer:', activeFocusTimer)
-            setFocusDuration(activeFocusTimer.focusDuration)
-            setBreakDuration(activeFocusTimer.breakDuration)
-            setRemainingTime(activeFocusTimer.remainingTime)
-          }
+    let interval: NodeJS.Timeout | null = null
+
+    if (isPlaying) {
+      interval = setInterval(async () => {
+        try {
+          setRemainingTime((prevRemainingTime) => {
+            const newRemainingTime = prevRemainingTime - 10
+            focusTimersApi.updateFocusTimer(focusTimerId!, { remainingTime: newRemainingTime })
+            return newRemainingTime
+          })
+          setTimeSpent((prevTimeSpent) => {
+            const newTimeSpent = prevTimeSpent + 10
+            focusTimersApi.updateFocusTimer(focusTimerId!, { timeSpent: newTimeSpent })
+            return newTimeSpent
+          })
+        } catch (error) {
+          console.error('Failed to update focus timer:', error)
         }
-      } catch (error) {
-        console.error('Failed to fetch active focus timer:', error)
-      }
+      }, 10000) // Update every 10 seconds
+    } else if (!isPlaying && interval) {
+      clearInterval(interval)
     }
 
-    fetchActiveFocusTimer()
-  }, [timerIsRunning, uid])
-
-  const {
-    control,
-    handleSubmit,
-    formState: { isValid }
-  } = useForm<CreateFocusTimerDto>({
-    defaultValues: defaultValues || {
-      userId: uid!,
-      taskId: '',
-      focusDuration: focusDuration,
-      breakDuration: breakDuration,
-      remainingTime: remainingTime,
-      timeSpent: 0,
-      isActive: false
-    },
-    mode: 'onChange'
-  })
+    return () => {
+      if (interval) {
+        clearInterval(interval)
+      }
+    }
+  }, [focusTimerId, isPlaying, task])
 
   const onSubmit: SubmitHandler<CreateFocusTimerDto> = async (data: CreateFocusTimerDto) => {
     try {
-      setFocusDuration(data.focusDuration)
-      setBreakDuration(data.breakDuration)
-      setRemainingTime(data.remainingTime)
+      // Ensure focusDuration and breakDuration are valid numbers
+      if (isNaN(data.focusDuration) || isNaN(data.breakDuration)) {
+        throw new Error('Focus duration or break duration is not a valid number')
+      }
 
-      saveFocusTimer(data)
-      handleChangeTimerDurations()
-    } catch (error) {
-      toast({
-        title: 'Failed to create or update focus timer.',
-        description: 'An error occurred during focus timer creation or update.'
-      })
-      console.log(error)
-    }
-  }
-
-  const saveFocusTimer = async (data: CreateFocusTimerDto) => {
-    try {
+      // Check if a focus timer with the given taskId exists
       const existingFocusTimer = await focusTimersApi.getFocusTimerByTaskId(task!._id!)
+      setFocusDuration(data.focusDuration * 60)
+      setBreakDuration(data.breakDuration * 60)
+      setRemainingTime(data.focusDuration)
+
       if (existingFocusTimer) {
+        console.log('existing', existingFocusTimer)
+        setFocusTimerId(existingFocusTimer._id!)
         // Update the existing focus timer
-        const updatedFocusTimer = await focusTimersApi.updateFocusTimer(existingFocusTimer._id!, {
-          ...data,
-          taskId: existingFocusTimer.taskId
+        await focusTimersApi.updateFocusTimer(existingFocusTimer._id!, {
+          userId: uid!,
+          taskId: task!._id!,
+          eventId: currentEventId,
+          focusDuration: data.focusDuration * 60,
+          breakDuration: data.breakDuration * 60,
+          remainingTime: data.focusDuration * 60,
+          isActive: false
         })
-        setFocusTimerId(updatedFocusTimer._id!)
-        console.log('updated focusTimerId: ', updatedFocusTimer._id)
         toast({
           title: 'Focus Timer updated successfully.',
           description: 'Your focus timer has been updated.'
@@ -173,14 +201,14 @@ export function FocusTimerModal() {
           userId: uid!,
           taskId: task!._id!,
           eventId: currentEventId,
-          focusDuration: data.focusDuration,
-          breakDuration: data.breakDuration,
-          remainingTime: data.focusDuration,
+          focusDuration: data.focusDuration * 60,
+          breakDuration: data.breakDuration * 60,
+          remainingTime: data.focusDuration * 60,
           timeSpent: 0,
           isActive: false
         })
+        console.log('created', createdFocusTimer)
         setFocusTimerId(createdFocusTimer._id!)
-        console.log('created focusTimerId: ', createdFocusTimer._id)
         toast({
           title: 'Focus Timer created successfully.',
           description: 'Your focus timer has been created.'
@@ -188,61 +216,59 @@ export function FocusTimerModal() {
       }
     } catch (error) {
       toast({
-        title: 'Failed to create focus timer.',
-        description: 'An error occurred during focus timer creation.'
+        title: 'Failed to create or update focus timer.',
+        description: error instanceof Error ? error.message : 'An error occurred during focus timer creation or update.'
       })
       console.log(error)
     }
   }
 
-  const handleStartTimer = async () => {
+  const handleStartTimer = () => {
     setIsPlaying(true)
     dispatch(setTimerIsRunning(true))
-    saveFocusTimer(defaultValues!)
-    toast({
-      title: 'Focus session started.',
-      description: 'Focus timer is running now.'
-    })
-    try {
-      await usersApi.setActiveFocusTimer(uid!, focusTimerId!)
-    } catch (error) {
-      console.log(error)
-    }
   }
+
+  const handleStartAndSubmit = async () => {
+    handleStartTimer()
+    handleSubmit(onSubmit)()
+  }
+
+  useEffect(() => {
+    const updateActiveFocusTimer = async () => {
+      try {
+        if (uid) {
+          if (focusTimerId) {
+            await usersApi.setActiveFocusTimer(uid, focusTimerId)
+          } else {
+            await usersApi.clearActiveFocusTimer(uid)
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    updateActiveFocusTimer()
+  }, [focusTimerId, uid])
 
   const handlePauseTimer = async () => {
     setIsPlaying(false)
     dispatch(setTimerIsRunning(false))
+    setFocusTimerId(null)
     toast({
       title: 'Focus session paused.',
       description: 'Focus timer paused.'
     })
-    try {
-      await usersApi.clearActiveFocusTimer(uid!)
-    } catch (error) {
-      console.log(error)
-    }
   }
 
-  const handleChangeTimerDurations = () => {
-    handleReset()
-    setIsPlaying(false)
-    dispatch(setTimerIsRunning(false))
-    toast({
-      title: 'Focus session durations updated.',
-      description: 'Focus time and Break time have been updated.'
-    })
-  }
-
-  const handleReset = () => {
+  const handleResetTimer = () => {
     setKey((prevKey) => prevKey + 1)
   }
 
-  // const onTimerComplete = () => {
-  //   setKey((prevKey) => prevKey + 1)
-  //   setIsPlaying(false)
-  //   dispatch(setTimerIsRunning(false))
-  // }
+  const handleResetAndSubmit = () => {
+    handleResetTimer()
+    handleSubmit(onSubmit)()
+  }
 
   const handleTimerPhaseChange = () => {
     setIsFocusPhase((prev) => !prev)
@@ -305,14 +331,14 @@ export function FocusTimerModal() {
       </VisuallyHidden.Root>
       <div className='h-full w-[1px] bg-slate-300'></div>
       {/* Timer Session */}
-      <div className='flex w-[320px] flex-col gap-6'>
-        <div>
+      <div className='flex w-[320px] flex-col items-center gap-6'>
+        <div className='w-full'>
           <h2 className='text-lg font-semibold'>Timer Session</h2>
           <p className='text-sm' style={{ color: canStartTimer ? colors.text_primary : '#f00' }}>
             {timerDescription}
           </p>
         </div>
-        <div className='flex flex-row items-center gap-6 text-sm font-medium'>
+        <div className='flex w-full flex-row items-center justify-between text-sm font-medium'>
           <div className='flex flex-col gap-1'>
             <span style={{ color: colors.text_secondary }}>Focus time (minutes)</span>
             <Controller
@@ -330,7 +356,11 @@ export function FocusTimerModal() {
                   max={60}
                   id='focusDuration'
                   value={value}
-                  onChange={(e) => onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const newValue = Number(e.target.value)
+                    onChange(newValue)
+                    setFocusDuration(newValue)
+                  }}
                   disabled={isPlaying || !canStartTimer}
                   className='col-span-3'
                 />
@@ -365,7 +395,7 @@ export function FocusTimerModal() {
         <CountdownCircleTimer
           key={key}
           isPlaying={isPlaying}
-          duration={isFocusPhase ? focusDuration : breakDuration}
+          duration={isFocusPhase ? focusDuration * 60 : breakDuration * 60}
           colors={['#004777', '#F7B801', '#A30000']}
           colorsTime={[
             isFocusPhase ? focusDuration : breakDuration,
@@ -377,20 +407,25 @@ export function FocusTimerModal() {
             return { shouldRepeat: false }
           }}
         >
-          {({ remainingTime }) => (
-            <div>
-              {isFocusPhase ? 'Focus Time' : 'Break Time'}: {remainingTime}s
-            </div>
-          )}
+          {({ remainingTime }) => {
+            return (
+              <div className='flex flex-col items-center justify-center gap-1 font-medium'>
+                <span style={{ color: colors.text_primary }}>{isFocusPhase ? 'Focus Time' : 'Break Time'}</span>
+                <span className='text-2xl' style={{ color: colors.primary }}>
+                  {formatFocusTimer(remainingTime)}
+                </span>
+              </div>
+            )
+          }}
         </CountdownCircleTimer>
-        <div className='flex w-full gap-6'>
+        <div className='flex w-full justify-between'>
           <div className='w-[132px]'>
             {!isPlaying ? (
               <ButtonFullWidth
                 enabled={canStartTimer && isValid}
                 text='Start'
                 icon={faPlay}
-                onClick={handleStartTimer}
+                onClick={handleStartAndSubmit}
               />
             ) : (
               <ButtonFullWidth enabled={true} text='Pause' icon={faPause} onClick={handlePauseTimer} />
@@ -401,7 +436,7 @@ export function FocusTimerModal() {
               enabled={!isPlaying}
               text='Set Timer'
               icon={faRefresh}
-              onClick={handleSubmit(onSubmit)}
+              onClick={handleResetAndSubmit}
               backgroundColor='#f00'
             />
           </div>

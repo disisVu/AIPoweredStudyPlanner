@@ -21,10 +21,11 @@ export function MainLayout() {
         if (uid) {
           const activeFocusTimer = await usersApi.getActiveFocusTimer(uid)
           if (activeFocusTimer) {
+            console.log('MainLayout focus session active')
             dispatch(setTimerIsRunning(true))
             dispatch(setCurrentEventId(activeFocusTimer.eventId))
           } else {
-            console.log('false')
+            console.log('MainLayout focus session not active')
             dispatch(setTimerIsRunning(false))
           }
         }

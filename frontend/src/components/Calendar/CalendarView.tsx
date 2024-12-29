@@ -213,6 +213,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
 
   const handleSelectEvent = (event: Event) => {
     dispatch(setCurrentEventId(event._id))
+    console.log('Selected event:', event._id)
   }
 
   const handleOpenChange = () => {

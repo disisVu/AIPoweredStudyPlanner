@@ -6,10 +6,10 @@ export type EventDocument = Event & Document;
 @Schema({ timestamps: true })
 export class Event {
   @Prop({ required: true })
-  taskId: string;
+  userId: string;
 
   @Prop({ required: true })
-  userId: string;
+  taskId: string;
 
   @Prop({ required: true })
   title: string;

@@ -8,6 +8,8 @@ import { AppService } from '@/app.service';
 import { AuthModule } from '@/auth/auth.module';
 import { TasksModule } from '@/tasks/tasks.module';
 import { EventsModule } from '@/events/events.module';
+import { FocusTimersModule } from '@/focus-timers/focus-timers.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { EventsModule } from '@/events/events.module';
     AuthModule,
     TasksModule,
     EventsModule,
+    FocusTimersModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

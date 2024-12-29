@@ -26,7 +26,12 @@ export class TasksController {
     return this.tasksService.createTask(createTaskDto);
   }
 
-  @Get(':userId')
+  @Get('task/:taskId')
+  getTaskById(@Param('taskId') taskId: string) {
+    return this.tasksService.getTaskById(taskId);
+  }
+
+  @Get('user/:userId')
   getTasks(@Param('userId') userId: string) {
     return this.tasksService.getTasks(userId);
   }

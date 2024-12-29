@@ -8,11 +8,16 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import '@/styles/calendarView.scss'
 
 import { CustomToolbar } from '@/components/Calendar'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Event } from './event.type'
 import { Event as ZodEvent } from '@/types/schemas'
 import { convertToDate, getUserCredentials } from '@/utils'
 import { CreateEventDto } from '@/types/api/events'
 import { eventsApi } from '@/api/events.api'
+import { FocusTimerModal } from '@/components/Modal'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../store'
+import { setCurrentEventId } from '../../store/reducers/sessionSlice'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
 
@@ -76,23 +81,8 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
 
   // Provide the dragged event from outside
   const dragFromOutsideItem = useCallback((): keyof Event | ((event: Event) => Date) => {
-    // if (draggedEvent === 'undroppable') {
-    //   return undefined
-    // }
-
-    // Option 1: Return a key like 'start' or 'end'
     return 'start'
   }, [])
-
-  // Custom handling for drag-over events
-  // const customOnDragOverFromOutside = useCallback(
-  //   (dragEvent: React.DragEvent) => {
-  //     if (draggedEvent !== 'undroppable') {
-  //       dragEvent.preventDefault()
-  //     }
-  //   },
-  //   [draggedEvent]
-  // )
 
   // Move an event to a new position
   const moveEvent = useCallback(
@@ -217,6 +207,20 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
   // Default date for the calendar
   const { defaultDate } = useMemo(() => ({ defaultDate: new Date() }), [])
 
+  const dispatch = useDispatch<AppDispatch>()
+  const currentEventId = useSelector((state: RootState) => state.session.currentEventId)
+  const timerIsRunning = useSelector((state: RootState) => state.session.timerIsRunning)
+
+  const handleSelectEvent = (event: Event) => {
+    dispatch(setCurrentEventId(event._id))
+  }
+
+  const handleOpenChange = () => {
+    if (!timerIsRunning) {
+      dispatch(setCurrentEventId(''))
+    }
+  }
+
   return (
     <div className='ml-6 h-[calc(100vh-88px)] w-full select-none'>
       <DnDCalendar
@@ -233,7 +237,13 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         resizable
         selectable
         components={{ toolbar: CustomToolbar }}
+        onSelectEvent={handleSelectEvent}
       />
+      <Dialog open={currentEventId !== '' || timerIsRunning} onOpenChange={handleOpenChange}>
+        <DialogContent className='min-w-fit focus:outline-none [&>button]:hidden'>
+          <FocusTimerModal />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

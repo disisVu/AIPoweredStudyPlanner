@@ -39,9 +39,25 @@ export class EventsService {
 
     await newEvent.save();
 
+    // Determine new task status
+    let newTaskStatus: 'T' | 'IP' | 'C' | 'E' = 'T'; // Default to Todo
+
+    if (createEventDto.start && createEventDto.end) {
+      const startDate = new Date(createEventDto.start);
+      const deadline = task.deadline ? new Date(task.deadline) : null;
+
+      if (deadline) {
+        if (startDate > deadline) {
+          newTaskStatus = 'E';
+        } else if (startDate <= deadline) {
+          newTaskStatus = 'IP';
+        }
+      }
+    }
+
     // Update the task to set isDistributed = true
     await this.tasksService.updateTask(createEventDto.taskId, {
-      isDistributed: true,
+      status: newTaskStatus,
     });
 
     return newEvent;
@@ -49,6 +65,10 @@ export class EventsService {
 
   async getEventByTaskId(taskId: string): Promise<Event> {
     return await this.eventModel.findOne({ taskId }).exec();
+  }
+
+  async getEventById(eventId: string): Promise<Event> {
+    return await this.eventModel.findById(eventId).exec();
   }
 
   async getEventsByUserId(userId: string): Promise<Event[]> {
@@ -85,16 +105,13 @@ export class EventsService {
 
     if (updateEventDto.start && updateEventDto.end) {
       const startDate = new Date(updateEventDto.start);
-      const endDate = new Date(updateEventDto.end);
       const deadline = task.deadline ? new Date(task.deadline) : null;
 
       if (deadline) {
         if (startDate > deadline) {
-          newTaskStatus = 'T'; // Start is after deadline -> Todo
-        } else if (startDate <= deadline && endDate >= deadline) {
-          newTaskStatus = 'IP'; // Between start and end -> In Progress
-        } else if (startDate < deadline && endDate < deadline) {
-          newTaskStatus = 'E'; // Both start and end before deadline -> Expired
+          newTaskStatus = 'E';
+        } else if (startDate <= deadline) {
+          newTaskStatus = 'IP';
         }
       }
     }

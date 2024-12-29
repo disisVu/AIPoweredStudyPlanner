@@ -50,7 +50,16 @@ const deleteTask = async (taskId: string) => {
 
 const getTasksByUserId = async (userId: string): Promise<Task[]> => {
   try {
-    const response = await api.get(`/tasks/${userId}`)
+    const response = await api.get(`/tasks/user/${userId}`)
+    return response.data
+  } catch {
+    throw new Error('Error: Get tasks by user ID')
+  }
+}
+
+const getTasksByTaskId = async (taskId: string): Promise<Task> => {
+  try {
+    const response = await api.get(`/tasks/task/${taskId}`)
     return response.data
   } catch {
     throw new Error('Error: Get tasks by user ID')
@@ -61,7 +70,7 @@ const getUndistributedTasksByUserId = async (userId: string): Promise<Task[]> =>
   try {
     const response = await api.get(`/tasks/filter/${userId}`, {
       params: {
-        isDistributed: false
+        status: 'T'
       }
     })
     return response.data
@@ -88,6 +97,7 @@ export const tasksApi = {
   updateTask,
   deleteTask,
   getTasksByUserId,
+  getTasksByTaskId,
   getUndistributedTasksByUserId,
   getFilteredTasks
 }

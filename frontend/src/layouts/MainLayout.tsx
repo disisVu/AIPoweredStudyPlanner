@@ -1,10 +1,46 @@
-import { Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Outlet } from 'react-router-dom'
 import { colors } from '@/styles'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Collapsible } from '@/components/ui/collapsible'
-import { NavBar } from '../components/Header'
+import { NavBar } from '@/components/Header'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '@/store'
+import { usersApi } from '@/api/users.api'
+import { setCurrentEventId, setTimerIsRunning } from '@/store/reducers/sessionSlice'
+import { getUserCredentials } from '@/utils'
 
 export function MainLayout() {
+  const dispatch = useDispatch()
+  const timerIsRunning = useSelector((state: RootState) => state.session.timerIsRunning)
+
+  useEffect(() => {
+    const fetchActiveFocusTimer = async () => {
+      try {
+        const { uid } = getUserCredentials()
+        if (uid) {
+          const activeFocusTimer = await usersApi.getActiveFocusTimer(uid)
+          if (activeFocusTimer) {
+            console.log('MainLayout focus session active')
+            dispatch(setTimerIsRunning(true))
+            dispatch(setCurrentEventId(activeFocusTimer.eventId))
+          } else {
+            console.log('MainLayout focus session not active')
+            dispatch(setTimerIsRunning(false))
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch active focus timer:', error)
+      }
+    }
+
+    fetchActiveFocusTimer()
+  }, [dispatch])
+
+  if (timerIsRunning && location.pathname !== '/task-scheduling') {
+    return <Navigate to='/task-scheduling' replace />
+  }
+
   return (
     <TooltipProvider delayDuration={0}>
       <div

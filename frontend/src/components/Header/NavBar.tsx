@@ -8,6 +8,7 @@ import logoPng from '@/assets/logo/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
 import { DefaultAvatar } from '@/components/Avatar'
+import { faChartArea, faChartBar, faChartColumn } from '@fortawesome/free-solid-svg-icons'
 
 export function NavBar() {
   const userData = getStoredUser() || { displayName: '', email: '' }
@@ -92,7 +93,7 @@ function PageSwitchButtons() {
       <Tooltip>
         <TooltipTrigger asChild>
           <div
-            className='cursor-pointer rounded-r-full border border-gray-400 border-l-transparent py-2 pl-4 pr-5 hover:brightness-90'
+            className='cursor-pointer border border-gray-400 border-l-transparent py-2 pl-4 pr-5 hover:brightness-90'
             style={{
               backgroundColor: isCurrentRoute('/task-management') ? '#c2e7ff' : '#fff'
             }}
@@ -103,6 +104,22 @@ function PageSwitchButtons() {
         </TooltipTrigger>
         <TooltipContent side='bottom' align='center'>
           Switch to Tasks
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className='cursor-pointer rounded-r-full border border-gray-400 border-l-transparent py-2 pl-4 pr-5 hover:brightness-90'
+            style={{
+              backgroundColor: isCurrentRoute('/analytic-dashboard') ? '#c2e7ff' : '#fff'
+            }}
+            onClick={() => navigate('/analytic-dashboard')}
+          >
+            <FontAwesomeIcon icon={faChartColumn} size='lg' />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side='bottom' align='center'>
+          Switch to Analytic Dashboard
         </TooltipContent>
       </Tooltip>
     </div>

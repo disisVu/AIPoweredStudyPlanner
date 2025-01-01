@@ -7,6 +7,7 @@ import '@/App.css'
 import { TaskManagementPage } from '@/pages/TaskManagementNew'
 import { Provider } from 'react-redux'
 import { store } from '@/store'
+import AnalyticsDashboard from './pages/Analytic/AnalyticsDashboard'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route index element={<TaskSchedulingPage />} />
             <Route path='task-scheduling' element={<TaskSchedulingPage />} />
             <Route path='task-management' element={<TaskManagementPage />} />
+            <Route path='analytic-dashboard' element={<AnalyticsDashboard />} />
           </Route>
           {/* Authentication routes */}
           <Route path='/auth' element={<AuthenticationLayout />}>

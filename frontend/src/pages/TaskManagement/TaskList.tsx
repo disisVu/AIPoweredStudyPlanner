@@ -32,20 +32,10 @@ const TaskList: React.FC<TaskListProp> = ({ tasks, onDelete, onUpdate }) => {
     if (!token || !uid) {
       getUserCredentials()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
-    // const storedUser = localStorage.getItem(`firebase:authUser:${import.meta.env.VITE_API_KEY}:[DEFAULT]`)
-    // if (!storedUser) {
-    //   console.error('No user data found in local storage.')
-    //   return { accessToken: null, uid: null }
-    // }
-
     try {
-      // const userObject = JSON.parse(storedUser)
-      // const accessToken = userObject?.stsTokenManager?.accessToken || null
-      // const uid = userObject?.uid || null
       const { accessToken, uid } = getUserCredentialsUtil()
 
       if (!accessToken) {

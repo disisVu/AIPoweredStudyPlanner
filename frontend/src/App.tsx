@@ -1,10 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthenticationLayout, MainLayout } from '@/layouts'
-import { LoginPage, RegistrationPage, TaskSchedulingPage } from '@/pages'
+import { LoginPage, RegistrationPage, TaskSchedulingPage, TaskManagementPage, AnalyticsDashboard } from '@/pages'
 import { Toaster } from '@/components/ui/toaster'
 import { ProtectedRoute } from '@/routes/protectedRoute'
 import '@/App.css'
-import { TaskManagementPage } from '@/pages/TaskManagementNew'
 import { Provider } from 'react-redux'
 import { store } from '@/store'
 
@@ -25,6 +24,7 @@ function App() {
             <Route index element={<TaskSchedulingPage />} />
             <Route path='task-scheduling' element={<TaskSchedulingPage />} />
             <Route path='task-management' element={<TaskManagementPage />} />
+            <Route path='analytic-dashboard' element={<AnalyticsDashboard />} />
           </Route>
           {/* Authentication routes */}
           <Route path='/auth' element={<AuthenticationLayout />}>

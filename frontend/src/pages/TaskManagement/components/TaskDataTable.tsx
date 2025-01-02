@@ -9,11 +9,14 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { CreateTaskModal, TaskTablePagination } from '@/pages/TaskManagementNew/components'
+import { TaskTablePagination } from '@/pages/TaskManagement/components'
 import { colors } from '@/styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { Tooltip } from '@radix-ui/react-tooltip'
+import { TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { CreateTaskModal } from '@/components/Modal'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -45,17 +48,24 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
           </span>
           <div className='col-span-2 flex items-center justify-end'>
             <Dialog>
-              <DialogTrigger asChild>
-                <div
-                  className='flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 hover:border-gray-200 hover:bg-gray-200'
-                  style={{ color: colors.text_primary }}
-                >
-                  <FontAwesomeIcon icon={faPlus} className='pb-[2px]' />
-                </div>
-              </DialogTrigger>
-              <DialogContent className='sm:max-w-[540px]'>
-                <CreateTaskModal />
-              </DialogContent>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DialogTrigger asChild>
+                    <div
+                      className='flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 hover:border-gray-200 hover:bg-gray-200'
+                      style={{ color: colors.text_primary }}
+                    >
+                      <FontAwesomeIcon icon={faPlus} className='pb-[2px]' />
+                    </div>
+                  </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent side='bottom' align='center'>
+                  Create task
+                </TooltipContent>
+                <DialogContent className='sm:max-w-[540px]'>
+                  <CreateTaskModal />
+                </DialogContent>
+              </Tooltip>
             </Dialog>
           </div>
         </div>

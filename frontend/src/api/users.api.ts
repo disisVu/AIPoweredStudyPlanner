@@ -1,26 +1,10 @@
 import { axiosPrivate as api } from '@/api/api'
+import { setupInterceptors } from '@/api/apiHeader'
 import { User } from '@/types/schemas/User'
 import { FocusTimer } from '@/types/schemas/FocusTimer'
-import { getUserCredentials } from '@/utils'
 
-// Set up a request interceptor to add the Authorization header
-api.interceptors.request.use(
-  (config) => {
-    try {
-      // Get user credentials
-      const { accessToken } = getUserCredentials()
-      if (accessToken) {
-        config.headers['Authorization'] = `Bearer ${accessToken}`
-      }
-    } catch {
-      console.log('Error: empty user credentials.')
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
+// Set up the request interceptor
+setupInterceptors(api)
 
 const getActiveFocusTimer = async (uid: string): Promise<FocusTimer | null> => {
   try {

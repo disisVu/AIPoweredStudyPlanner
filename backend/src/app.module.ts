@@ -10,6 +10,7 @@ import { TasksModule } from '@/tasks/tasks.module';
 import { EventsModule } from '@/events/events.module';
 import { FocusTimersModule } from '@/focus-timers/focus-timers.module';
 import { UsersModule } from './users/users.module';
+import { AnalyticsModule } from './analytic/analytics.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     EventsModule,
     FocusTimersModule,
     UsersModule,
+    AnalyticsModule
   ],
   controllers: [AppController],
   providers: [AppService],

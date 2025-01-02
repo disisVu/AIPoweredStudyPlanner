@@ -1,26 +1,10 @@
 import { axiosPrivate as api } from '@/api/api'
-import { getUserCredentials } from '@/utils'
+import { setupInterceptors } from '@/api/apiHeader'
 import { Task } from '@/types/schemas/Task'
 import { CreateTaskDto, FilterTaskDto, UpdateTaskDto } from '@/types/api/tasks'
 
-// Set up a request interceptor to add the Authorization header
-api.interceptors.request.use(
-  (config) => {
-    try {
-      // Get user credentials
-      const { accessToken } = getUserCredentials()
-      if (accessToken) {
-        config.headers['Authorization'] = `Bearer ${accessToken}`
-      }
-    } catch {
-      console.log('Error: empty user credentials.')
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
+// Set up the request interceptor
+setupInterceptors(api)
 
 const createTask = async (createTaskDto: CreateTaskDto): Promise<Task> => {
   try {

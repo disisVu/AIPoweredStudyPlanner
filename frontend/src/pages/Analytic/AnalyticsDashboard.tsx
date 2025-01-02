@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { getTotalTime, getDailyTime, getTaskStatus, TotalTimeResponse, DailyTimeResponse, TaskStatusResponse } from './analyticsService';
-import TotalTimeCard from './TotalTimeCard';
-import DailyTimeChart from './DailyTimeChart';
-import TaskStatusChart from './TaskStatusChart';
+import React, { useState, useEffect } from 'react'
+import {
+  getTotalTime,
+  getDailyTime,
+  getTaskStatus,
+  TotalTimeResponse,
+  DailyTimeResponse,
+  TaskStatusResponse
+} from './analyticsService'
+import TotalTimeCard from './TotalTimeCard'
+import DailyTimeChart from './DailyTimeChart'
+import TaskStatusChart from './TaskStatusChart'
 import { getUserCredentials as getUserCredentialsUtil } from '@/utils'
-import { colors } from '@/styles'
-import { faCheckCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { TaskFilterModule, TaskListModule } from '../TaskManagementNew/components';
 
-interface AnalyticsDashboardProps {
-}
+type AnalyticsDashboardProps = object
 
 const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = () => {
-  const [totalTime, setTotalTime] = useState<TotalTimeResponse | null>(null);
-  const [dailyTime, setDailyTime] = useState<DailyTimeResponse | null>(null);
-  const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null);
+  const [totalTime, setTotalTime] = useState<TotalTimeResponse | null>(null)
+  const [dailyTime, setDailyTime] = useState<DailyTimeResponse | null>(null)
+  const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null)
   const [uid, setUid] = useState<string>('')
   const [token, setToken] = useState<string>('')
 
@@ -37,29 +39,31 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = () => {
     if (!token || !uid) {
       getUserCredentials()
     } else {
-      fetchData();
+      fetchData()
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (uid && token) {
       fetchData()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, token])
 
   const fetchData = async () => {
     try {
-      const totalTimeData = await getTotalTime(uid, token);
-      const dailyTimeData = await getDailyTime(uid, token);
-      const taskStatusData = await getTaskStatus(uid, token);
+      const totalTimeData = await getTotalTime(uid, token)
+      const dailyTimeData = await getDailyTime(uid, token)
+      const taskStatusData = await getTaskStatus(uid, token)
 
-      setTotalTime(totalTimeData);
-      setDailyTime(dailyTimeData);
-      setTaskStatus(taskStatusData);
+      setTotalTime(totalTimeData)
+      setDailyTime(dailyTimeData)
+      setTaskStatus(taskStatusData)
     } catch (error) {
-      console.error('Error fetching analytics data:', error);
+      console.error('Error fetching analytics data:', error)
     }
-  };
+  }
 
   const getUserCredentials = (): { accessToken: string | null; uid: string | null } => {
     try {
@@ -89,15 +93,13 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = () => {
           </div>
         </div>
         <div className='col-span-8 flex h-full flex-col gap-4'>
-          <div className='flex items-center justify-center'>
-          </div>
           <div className='h-full rounded-xl border border-gray-200 bg-white shadow-sm'>
             {dailyTime && <DailyTimeChart dailyTime={dailyTime} />}
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AnalyticsDashboard;
+export default AnalyticsDashboard

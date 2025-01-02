@@ -8,7 +8,7 @@ import logoPng from '@/assets/logo/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
 import { DefaultAvatar } from '@/components/Avatar'
-import { faChartArea, faChartBar, faChartColumn } from '@fortawesome/free-solid-svg-icons'
+import { faChartColumn } from '@fortawesome/free-solid-svg-icons'
 
 export function NavBar() {
   const userData = getStoredUser() || { displayName: '', email: '' }
@@ -93,7 +93,7 @@ function PageSwitchButtons() {
       <Tooltip>
         <TooltipTrigger asChild>
           <div
-            className='cursor-pointer border border-gray-400 border-l-transparent py-2 pl-4 pr-5 hover:brightness-90'
+            className='cursor-pointer border border-gray-400 border-l-transparent px-4 py-2 hover:brightness-90'
             style={{
               backgroundColor: isCurrentRoute('/task-management') ? '#c2e7ff' : '#fff'
             }}

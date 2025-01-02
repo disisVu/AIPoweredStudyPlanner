@@ -1,8 +1,8 @@
 import { Task } from '@/types/schemas'
-import { taskTableColumns, TaskDataTable } from '@/pages/TaskManagementNew/components'
+import { taskTableColumns, TaskDataTable } from '@/pages/TaskManagement/components'
 import { useDispatch } from 'react-redux'
 import { removeTask } from '@/store/reducers/taskSlice' // Assuming you have a `removeTask` action
-import { tasksApi } from '../../../api/tasks.api'
+import { tasksApi } from '@/api/tasks.api'
 
 interface TaskListModuleProps {
   tasks: Task[]

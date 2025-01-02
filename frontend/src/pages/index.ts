@@ -1,3 +1,5 @@
 export * from '@/pages/Home'
 export * from '@/pages/Authentication'
 export * from '@/pages/TaskScheduling/TaskSchedulingPage'
+export * from '@/pages/TaskManagement/TaskManagementPage'
+export * from '@/pages/Analytic'

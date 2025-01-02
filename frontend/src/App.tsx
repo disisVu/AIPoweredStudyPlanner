@@ -1,13 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthenticationLayout, MainLayout } from '@/layouts'
-import { LoginPage, RegistrationPage, TaskSchedulingPage } from '@/pages'
+import { LoginPage, RegistrationPage, TaskSchedulingPage, TaskManagementPage, AnalyticsDashboard } from '@/pages'
 import { Toaster } from '@/components/ui/toaster'
 import { ProtectedRoute } from '@/routes/protectedRoute'
 import '@/App.css'
-import { TaskManagementPage } from '@/pages/TaskManagementNew'
 import { Provider } from 'react-redux'
 import { store } from '@/store'
-import AnalyticsDashboard from './pages/Analytic/AnalyticsDashboard'
 
 function App() {
   return (

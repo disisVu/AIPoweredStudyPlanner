@@ -14,7 +14,7 @@ import { getUserCredentials as getUserCredentialsUtil } from '@/utils'
 
 type AnalyticsDashboardProps = object
 
-const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = () => {
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = () => {
   const [totalTime, setTotalTime] = useState<TotalTimeResponse | null>(null)
   const [dailyTime, setDailyTime] = useState<DailyTimeResponse | null>(null)
   const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null)
@@ -101,5 +101,3 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = () => {
     </div>
   )
 }
-
-export default AnalyticsDashboard

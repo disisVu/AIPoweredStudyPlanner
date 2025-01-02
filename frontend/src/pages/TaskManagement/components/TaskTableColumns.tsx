@@ -8,8 +8,8 @@ import { taskPriorityLabels, taskStatusLabels } from '@/types/enum/taskLabel'
 import { colors, priorityColors, statusColors } from '@/styles'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { faPenToSquare, faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { Dialog, DialogContent, DialogTrigger } from '../../../components/ui/dialog'
-import { EditTaskModal } from './EditTaskModal'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { EditTaskModal } from '@/components/Modal'
 
 interface TaskTableColumnsProps {
   handleDeleteTask: (taskId: string) => void

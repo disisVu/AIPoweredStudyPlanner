@@ -10,6 +10,9 @@ export class User {
 
   @Prop({ type: String, default: null })
   activeFocusTimerId: string | null;
+
+  @Prop({ default: false })
+  isActivated: boolean; 
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

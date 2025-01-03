@@ -1,11 +1,11 @@
-import { Controller, Get, UseGuards, Req, Post, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Post, Body, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FirebaseAuthGuard } from './auth.guard';
 import { LoginDto, RegisterDto } from './dto/autg.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @UseGuards(FirebaseAuthGuard)
   @Get('profile')
@@ -24,5 +24,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  // New endpoint to activate the account
+  @Get('activate/:token')
+  async activateAccount(@Param('token') token: string) {
+    return this.authService.activateAccount(token);
   }
 }

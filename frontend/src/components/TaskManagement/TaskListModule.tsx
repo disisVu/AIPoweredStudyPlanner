@@ -1,7 +1,7 @@
 import { Task } from '@/types/schemas'
-import { taskTableColumns, TaskDataTable } from '@/pages/TaskManagement/components'
+import { taskTableColumns, TaskDataTable } from '@/components/TaskManagement'
 import { useDispatch } from 'react-redux'
-import { removeTask } from '@/store/reducers/taskSlice' // Assuming you have a `removeTask` action
+import { removeTask } from '@/store/reducers/taskSlice'
 import { tasksApi } from '@/api/tasks.api'
 
 interface TaskListModuleProps {
@@ -18,7 +18,7 @@ export function TaskListModule({ tasks }: TaskListModuleProps) {
   }
 
   return (
-    <div className='h-full select-none'>
+    <div className='h-full max-h-full select-none'>
       <TaskDataTable columns={taskTableColumns({ handleDeleteTask })} data={tasks} />
     </div>
   )

@@ -2,7 +2,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Task } from '@/types/schemas'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowsUpDown, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
-import { formatDate, taskSortOrder } from '@/utils'
+import { formatDateWithTime, taskSortOrder } from '@/utils'
 import { TaskBadge } from '@/components/Badge'
 import { taskPriorityLabels, taskStatusLabels } from '@/types/enum/taskLabel'
 import { colors, priorityColors, statusColors } from '@/styles'
@@ -109,12 +109,12 @@ export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): C
       const taskDeadline: Date = new Date(row.getValue('deadline'))
       return (
         <div className='flex w-full justify-center'>
-          <div className='text-left font-medium'>{formatDate(taskDeadline)}</div>
+          <div className='text-left font-medium'>{formatDateWithTime(taskDeadline)}</div>
         </div>
       )
     },
     sortingFn: 'datetime',
-    size: 60
+    size: 100
   },
   {
     accessorKey: 'actions',

@@ -9,7 +9,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { TaskTablePagination } from '@/pages/TaskManagement/components'
+import { TaskTablePagination } from '@/components/TaskManagement'
 import { colors } from '@/styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -39,7 +39,7 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
   })
 
   return (
-    <div className='flex h-full flex-col rounded-md border-t'>
+    <div className='flex h-full max-h-full flex-col rounded-md border-t'>
       {/* Header Section */}
       <div className='h-12 rounded-t-lg border-b border-gray-200 px-4 py-2'>
         <div className='grid h-8 grid-cols-12 items-center gap-4'>

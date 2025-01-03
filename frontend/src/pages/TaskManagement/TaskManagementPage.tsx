@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { TaskFilterModule, TaskListModule } from '@/pages/TaskManagement/components'
+import { TaskFilterModule, TaskListModule } from '@/components/TaskManagement'
 import { colors } from '@/styles'
 import { faCheckCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons'
 import { useEffect } from 'react'
@@ -9,6 +9,7 @@ import { getUserCredentials } from '@/utils'
 import { tasksApi } from '@/api/tasks.api'
 import { FilterTaskDto } from '@/types/api/tasks'
 import { setTasks } from '@/store/reducers/taskSlice'
+import { AIAssistor } from '@/components/AIAssistor'
 
 export function TaskManagementPage() {
   const dispatch = useDispatch<AppDispatch>()
@@ -52,7 +53,7 @@ export function TaskManagementPage() {
   }
 
   return (
-    <div className='flex min-h-[calc(100vh-56px)] w-full justify-center bg-blue-100 px-12 py-6'>
+    <div className='flex max-h-[calc(100vh-56px)] min-h-[calc(100vh-56px)] w-full justify-center bg-blue-100 px-12 py-6'>
       <div className='grid w-full grid-cols-12 gap-x-4'>
         {/*Task Management Section */}
         <div className='col-span-8 flex flex-col gap-4'>
@@ -66,6 +67,7 @@ export function TaskManagementPage() {
               handleFilterChange({})
             }}
           />
+          {/* Task List */}
           <div className='h-full max-h-full w-full rounded-xl border border-gray-200 bg-white shadow-sm'>
             <TaskListModule tasks={tasks} />
           </div>
@@ -75,11 +77,11 @@ export function TaskManagementPage() {
           <div className='flex items-center justify-center'>
             <div className='flex flex-row items-center gap-x-4' style={{ color: colors.tertiary }}>
               <FontAwesomeIcon icon={faLightbulb} size='2xl' />
-              <span className='text-3xl font-medium'>AI Suggestions</span>
+              <span className='text-3xl font-medium'>AI Assistor</span>
             </div>
           </div>
-          <div className='h-full rounded-xl border border-gray-200 bg-white shadow-sm'>
-            {/* Data Table goes here */}
+          <div className='h-[calc(100vh-156px)] rounded-xl border border-gray-200 bg-white shadow-sm'>
+            <AIAssistor />
           </div>
         </div>
       </div>

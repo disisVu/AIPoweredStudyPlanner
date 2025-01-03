@@ -24,6 +24,7 @@ import { CreateFocusTimerDto } from '@/types/api/focusTimers'
 import { focusTimersApi } from '@/api/focusTimers.api'
 import { usersApi } from '@/api/users.api'
 
+const timeMultipler: number = 1
 const minFocusTime: number = 10
 const maxFocusTime: number = 60
 const minBreakTime: number = 2
@@ -46,8 +47,8 @@ export function FocusTimerModal() {
   const [isFocusPhase, setIsFocusPhase] = useState(true)
   const [focusDuration, setFocusDuration] = useState(10)
   const [breakDuration, setBreakDuration] = useState(2)
-  const [timeSpent, setTimeSpent] = useState(0)
-  const [remainingTime, setRemainingTime] = useState(10 * 60)
+  const [, setTimeSpent] = useState(0)
+  const [remainingTime, setRemainingTime] = useState(10 * timeMultipler)
   const [defaultValues, setDefaultValues] = useState<CreateFocusTimerDto | null>(null)
 
   const {
@@ -93,8 +94,9 @@ export function FocusTimerModal() {
           setTask(fetchedTask)
           const fetchedFocusTimer = await focusTimersApi.getFocusTimerByTaskId(fetchedTask._id!)
           console.log(fetchedFocusTimer)
-          setFocusDuration(fetchedFocusTimer.focusDuration / 60)
-          setBreakDuration(fetchedFocusTimer.breakDuration / 60)
+          setFocusTimerId(fetchedFocusTimer._id!)
+          setFocusDuration(fetchedFocusTimer.focusDuration / timeMultipler)
+          setBreakDuration(fetchedFocusTimer.breakDuration / timeMultipler)
           setRemainingTime(fetchedFocusTimer.remainingTime)
           setTimeSpent(fetchedFocusTimer.timeSpent)
           setDefaultValues(
@@ -102,8 +104,8 @@ export function FocusTimerModal() {
               ({
                 ...prev,
                 taskId: fetchedTask._id!,
-                focusDuration: fetchedFocusTimer.focusDuration / 60,
-                breakDuration: fetchedFocusTimer.breakDuration / 60,
+                focusDuration: fetchedFocusTimer.focusDuration / timeMultipler,
+                breakDuration: fetchedFocusTimer.breakDuration / timeMultipler,
                 remainingTime: fetchedFocusTimer.remainingTime,
                 timeSpent: fetchedFocusTimer.timeSpent,
                 isActive: false
@@ -113,8 +115,8 @@ export function FocusTimerModal() {
             userId: uid!,
             taskId: fetchedTask._id!,
             eventId: currentEventId,
-            focusDuration: fetchedFocusTimer.focusDuration / 60,
-            breakDuration: fetchedFocusTimer.breakDuration / 60,
+            focusDuration: fetchedFocusTimer.focusDuration / timeMultipler,
+            breakDuration: fetchedFocusTimer.breakDuration / timeMultipler,
             remainingTime: fetchedFocusTimer.remainingTime,
             timeSpent: fetchedFocusTimer.timeSpent,
             isActive: false
@@ -174,9 +176,9 @@ export function FocusTimerModal() {
 
       // Check if a focus timer with the given taskId exists
       const existingFocusTimer = await focusTimersApi.getFocusTimerByTaskId(task!._id!)
-      setFocusDuration(data.focusDuration * 60)
-      setBreakDuration(data.breakDuration * 60)
-      setRemainingTime(data.focusDuration)
+      setFocusDuration(data.focusDuration * timeMultipler)
+      setBreakDuration(data.breakDuration * timeMultipler)
+      setRemainingTime(data.focusDuration * timeMultipler)
 
       if (existingFocusTimer) {
         console.log('existing', existingFocusTimer)
@@ -186,11 +188,12 @@ export function FocusTimerModal() {
           userId: uid!,
           taskId: task!._id!,
           eventId: currentEventId,
-          focusDuration: data.focusDuration * 60,
-          breakDuration: data.breakDuration * 60,
-          remainingTime: data.focusDuration * 60,
+          focusDuration: data.focusDuration * timeMultipler,
+          breakDuration: data.breakDuration * timeMultipler,
+          remainingTime: data.focusDuration * timeMultipler,
           isActive: false
         })
+        setRemainingTime(data.focusDuration * timeMultipler)
         toast({
           title: 'Focus Timer updated successfully.',
           description: 'Your focus timer has been updated.'
@@ -201,14 +204,15 @@ export function FocusTimerModal() {
           userId: uid!,
           taskId: task!._id!,
           eventId: currentEventId,
-          focusDuration: data.focusDuration * 60,
-          breakDuration: data.breakDuration * 60,
-          remainingTime: data.focusDuration * 60,
+          focusDuration: data.focusDuration * timeMultipler,
+          breakDuration: data.breakDuration * timeMultipler,
+          remainingTime: data.focusDuration * timeMultipler,
           timeSpent: 0,
           isActive: false
         })
         console.log('created', createdFocusTimer)
         setFocusTimerId(createdFocusTimer._id!)
+        setRemainingTime(data.focusDuration * timeMultipler)
         toast({
           title: 'Focus Timer created successfully.',
           description: 'Your focus timer has been created.'
@@ -229,8 +233,20 @@ export function FocusTimerModal() {
   }
 
   const handleStartAndSubmit = async () => {
-    handleStartTimer()
-    handleSubmit(onSubmit)()
+    try {
+      const existingFocusTimer = await focusTimersApi.getFocusTimerByTaskId(task!._id!)
+      if (!existingFocusTimer) {
+        await handleSubmit(onSubmit)()
+      } else {
+        setFocusTimerId(existingFocusTimer._id!)
+      }
+      handleStartTimer()
+    } catch (error) {
+      toast({
+        title: 'Failed to start focus timer.',
+        description: error instanceof Error ? error.message : 'An error occurred during focus timer start.'
+      })
+    }
   }
 
   useEffect(() => {
@@ -272,6 +288,7 @@ export function FocusTimerModal() {
 
   const handleTimerPhaseChange = () => {
     setIsFocusPhase((prev) => !prev)
+    setRemainingTime(focusDuration * timeMultipler)
     setKey((prevKey) => prevKey + 1)
   }
 
@@ -395,7 +412,8 @@ export function FocusTimerModal() {
         <CountdownCircleTimer
           key={key}
           isPlaying={isPlaying}
-          duration={isFocusPhase ? focusDuration * 60 : breakDuration * 60}
+          initialRemainingTime={isFocusPhase ? remainingTime : breakDuration * timeMultipler}
+          duration={isFocusPhase ? focusDuration * timeMultipler : breakDuration * timeMultipler}
           colors={['#004777', '#F7B801', '#A30000']}
           colorsTime={[
             isFocusPhase ? focusDuration : breakDuration,

@@ -5,10 +5,12 @@ import {
 } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { LoginDto, RegisterDto } from './dto/autg.dto';
+import { MailerService } from '@nestjs-modules/mailer';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
-  constructor() {
+  constructor(private readonly mailerService: MailerService) {
     const firebaseCredentials = Buffer.from(
       process.env.FIREBASE_CRENDENTIALS,
       'base64',
@@ -46,11 +48,30 @@ export class AuthService {
         email,
         password,
         displayName: username,
+        disabled: true
+      });
+
+      const activationToken = jwt.sign(
+        { uid: userRecord.uid },
+        process.env.JWT_SECRET, // Add this secret to your .env file
+        { expiresIn: '1h' },
+      );
+      console.log('Template path:', __dirname + '/../src/mailer');
+
+      const activationLink = `http://localhost:5000/auth/activate/${activationToken}`;
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Activate your account',
+        template: './activation.hbs', // Path to email template
+        context: {
+          username,
+          activationLink,
+        },
       });
 
       return {
         success: true,
-        message: 'User registered successfully.',
+        message: 'Registration successful. Check your email to activate your account.',
         data: {
           uid: userRecord.uid,
           email: userRecord.email,
@@ -58,15 +79,36 @@ export class AuthService {
         },
       };
     } catch (error) {
+      console.log(error.message);
       throw new BadRequestException(
         error.message || 'Unable to register user.',
       );
     }
   }
 
+  async activateAccount(token: string) {
+    try {
+      // Verify the activation token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { uid: string };
+      // Activate the user in Firebase
+      const userRecord = await admin.auth().getUser(decoded.uid);
+      if (!userRecord.disabled) {
+        throw new BadRequestException('Account is already activated.');
+      }
+      await admin.auth().updateUser(decoded.uid, { disabled: false });
+      return {
+        success: true,
+        message: 'Account successfully activated.',
+      };
+    } catch (error) {
+      throw new BadRequestException(
+        error.message || 'Invalid or expired activation token.',
+      );
+    }
+  }
+
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
-
     try {
       const user = await admin.auth().getUserByEmail(email);
       if (!user) {

@@ -1,11 +1,19 @@
-import { Controller, Get, UseGuards, Req, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Post,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FirebaseAuthGuard } from './auth.guard';
 import { LoginDto, RegisterDto } from './dto/autg.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(FirebaseAuthGuard)
   @Get('profile')

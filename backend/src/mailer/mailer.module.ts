@@ -13,7 +13,7 @@ import { Module } from '@nestjs/common';
         },
       },
       defaults: {
-        from: '"No Reply" <no-reply@example.com>', // Default "from" email address
+        from: '"AI-Powered Study Planner Authentication" <no-reply@example.com>', // Default "from" email address
       },
     }),
   ],

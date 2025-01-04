@@ -12,7 +12,13 @@ export class User {
   activeFocusTimerId: string | null;
 
   @Prop({ default: false })
-  isActivated: boolean; 
+  isActivated: boolean;
+
+  @Prop()
+  resetPasswordToken?: string; // Token for resetting password
+
+  @Prop()
+  resetPasswordExpires?: Date; // Token expiration date
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

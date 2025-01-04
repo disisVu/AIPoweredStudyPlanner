@@ -6,6 +6,7 @@ import { ProtectedRoute } from '@/routes/protectedRoute'
 import '@/App.css'
 import { Provider } from 'react-redux'
 import { store } from '@/store'
+import ResetPassword from './pages/Authentication/ResetPassword'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path='/auth' element={<AuthenticationLayout />}>
             <Route path='login' element={<LoginPage />} />
             <Route path='registration' element={<RegistrationPage />} />
+            <Route path="reset-password/:token" element={<ResetPassword />} />
           </Route>
         </Routes>
         <Toaster />

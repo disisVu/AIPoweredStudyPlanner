@@ -58,7 +58,7 @@ export class AuthService {
       );
       console.log('Template path:', __dirname + '/../src/mailer');
 
-      const activationLink = `http://localhost:5000/auth/activate/${activationToken}`;
+      const activationLink = `http://${process.env.HOST}:${process.env.PORT}/auth/activate/${activationToken}`;
       await this.mailerService.sendMail({
         to: email,
         subject: 'Activate your account',
@@ -128,6 +128,66 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException(
         error.message || 'Login failed. Please check your credentials.',
+      );
+    }
+  }
+
+  async forgotPassword(email: string): Promise<string> {
+    try {
+      const user = await admin.auth().getUserByEmail(email);
+      if (!user) {
+        throw new BadRequestException('No user found with this email.');
+      }
+      // Generate a reset token
+      const resetToken = jwt.sign({ uid: user.uid }, process.env.JWT_SECRET, {
+        expiresIn: '1h', // Token expires in 1 hour
+      });
+      // Send the reset email
+      const resetLink = `http://${process.env.HOST}:4001/auth/reset-password/${resetToken}`;
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Reset Your Password',
+        template: './reset-password.hbs', // Path to the reset password template
+        context: {
+          resetLink,
+        },
+      });
+      return 'Password reset email sent successfully.';
+    } catch (error) {
+      throw new BadRequestException(
+        error.message || 'Unable to process forgot password request.',
+      );
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<string> {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { uid: string };
+      const user = await admin.auth().getUser(decoded.uid);
+      if (!user) {
+        throw new BadRequestException('Invalid or expired reset token.');
+      }
+
+      // Use the new updatePassword method
+      return await this.updatePassword(user.uid, newPassword);
+    } catch (error) {
+      throw new BadRequestException(
+        error.message || 'Invalid or expired reset token.',
+      );
+    }
+  }
+
+
+  async updatePassword(uid: string, newPassword: string): Promise<string> {
+    try {
+      if (!newPassword || newPassword.length < 8) {
+        throw new BadRequestException('Password must be at least 8 characters long.');
+      }
+      await admin.auth().updateUser(uid, { password: newPassword });
+      return 'Password updated successfully.';
+    } catch (error) {
+      throw new BadRequestException(
+        error.message || 'Unable to update the password. Please try again.',
       );
     }
   }

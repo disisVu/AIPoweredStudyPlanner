@@ -1,14 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Task, TaskDocument } from './task.schema';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { EventsService } from '@/events/events.service';
+import { FocusTimersService } from '@/focus-timers/focus-timers.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(Task.name) private readonly taskModel: Model<TaskDocument>,
+    @Inject(forwardRef(() => EventsService))
+    private readonly eventsService: EventsService,
+    @Inject(forwardRef(() => FocusTimersService))
+    private readonly focusTimersService: FocusTimersService,
   ) {}
 
   async createTask(createTaskDto: CreateTaskDto) {
@@ -29,10 +40,35 @@ export class TasksService {
       new: true,
     });
     if (!task) throw new NotFoundException('Task not found');
+
+    // If the task name is updated, update the event title as well
+    if (updateTaskDto.name) {
+      const event = await this.eventsService.getEventByTaskId(taskId);
+      if (event) {
+        await this.eventsService.updateEvent(event._id.toString(), {
+          title: updateTaskDto.name,
+        });
+      }
+    }
+
     return task;
   }
 
   async deleteTask(taskId: string): Promise<void> {
+    // Check and delete associated event
+    const event = await this.eventsService.getEventByTaskId(taskId);
+    if (event) {
+      await this.eventsService.deleteEvent(event._id.toString());
+    }
+
+    // Check and delete associated focus timer
+    const focusTimer =
+      await this.focusTimersService.getFocusTimerByTaskId(taskId);
+    if (focusTimer) {
+      await this.focusTimersService.deleteFocusTimer(focusTimer._id.toString());
+    }
+
+    // Delete the task
     const result = await this.taskModel.findByIdAndDelete(taskId);
     if (!result) throw new NotFoundException('Task not found');
   }

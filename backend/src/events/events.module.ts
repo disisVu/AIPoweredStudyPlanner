@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Event, EventSchema } from '@/events/event.schema';
 import { EventsController } from '@/events/events.controller';
@@ -11,9 +11,10 @@ import { TasksModule } from '@/tasks/tasks.module';
   imports: [
     MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
     AuthModule,
-    TasksModule,
+    forwardRef(() => TasksModule),
   ],
   controllers: [EventsController],
   providers: [EventsService, EventGuard],
+  exports: [EventsService],
 })
 export class EventsModule {}

@@ -1,0 +1,56 @@
+version: 2.1
+orbs:
+  node: circleci/node@5
+
+jobs:
+  build-frontend:
+    executor: node/default
+    working_directory: ~/project/frontend
+    steps:
+      - checkout:
+          path: ~/project
+      - run:
+          name: Install frontend dependencies
+          command: cd frontend && npm install
+      - restore_cache:
+          keys:
+            - v1-frontend-{{ checksum "frontend/package.json" }}
+      - save_cache:
+          paths:
+            - ~/project/frontend/node_modules
+          key: v1-frontend-{{ checksum "frontend/package.json" }}
+      - run:
+          name: Build frontend
+          command: cd frontend && npm run build
+      - store_artifacts:
+          path: ~/project/frontend/dist
+          destination: frontend-build
+
+  build-backend:
+    executor: node/default
+    working_directory: ~/project/backend
+    steps:
+      - checkout:
+          path: ~/project
+      - run:
+          name: Install backend dependencies
+          command: cd backend && npm install
+      - restore_cache:
+          keys:
+            - v1-backend-{{ checksum "backend/package.json" }}
+      - save_cache:
+          paths:
+            - ~/project/backend/node_modules
+          key: v1-backend-{{ checksum "backend/package.json" }}
+      - run:
+          name: Build backend
+          command: cd backend && npm run build
+      - run:
+          name: Run backend tests
+          command: cd backend && npm test
+
+workflows:
+  build-and-test:
+    jobs:
+      - build-frontend
+      - build-backend

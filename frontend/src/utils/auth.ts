@@ -6,7 +6,8 @@ import {
   signOut,
   setPersistence,
   browserLocalPersistence,
-  User
+  User,
+  sendPasswordResetEmail
 } from 'firebase/auth'
 import { auth } from '@/firebase'
 import { AuthResponse } from '@/types/api/auth'
@@ -157,4 +158,21 @@ export const getStoredUser = (): {
 } | null => {
   const userData = localStorage.getItem('authUser')
   return userData ? JSON.parse(userData) : null
+}
+
+export const resetPassword = async (email: string): Promise<AuthResponse> => {
+  try {
+    await sendPasswordResetEmail(auth, email)
+    return {
+      success: true,
+      message: 'Reset password email sent.'
+    }
+  } catch (error) {
+    const firebaseError = error as FirebaseError
+    const errorMessage = firebaseError.message
+    return {
+      success: false,
+      message: errorMessage
+    }
+  }
 }

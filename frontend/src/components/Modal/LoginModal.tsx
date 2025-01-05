@@ -8,17 +8,15 @@ import { FormInput, PasswordInput } from '@/components/Input'
 
 import googleIcon from '@/assets/brands/google-48.png'
 import { colors } from '@/styles'
-import { emailRegex, loginWithEmailAndPassword, loginWithGoogle } from '@/utils'
-import { LoginFormInputs } from '@/types/form'
+import { emailRegex, loginWithEmailAndPassword, loginWithGoogle, resetPassword } from '@/utils'
+import { LoginFormInputs, ResetPasswordFormInputs } from '@/types/form'
 import { useToast } from '@/hooks/use-toast'
-import axios from 'axios'
 
 export function LoginModal() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState<boolean>(false)
 
   const {
     control,
@@ -28,6 +26,16 @@ export function LoginModal() {
     defaultValues: {
       email: '',
       password: ''
+    }
+  })
+
+  const {
+    control: resetPasswordControl,
+    handleSubmit: handleResetPasswordSubmit,
+    formState: { errors: resetPasswordErrors }
+  } = useForm<ResetPasswordFormInputs>({
+    defaultValues: {
+      email: ''
     }
   })
 
@@ -93,49 +101,47 @@ export function LoginModal() {
     navigate('/auth/registration')
   }
 
-  const handleForgotPassword = async (email: string) => {
+  const handleResetPassword = async (email: string) => {
     try {
-      setIsLoading(true);
-      const result = await requestPasswordReset(email); // Call your backend API
+      setIsLoading(true)
+      const result = await requestPasswordReset(email)
       if (result.success) {
         toast({
           title: 'Reset email sent.',
-          description: 'Check your inbox for a reset link.',
-        });
-        setIsForgotPasswordOpen(false); // Close modal after success
+          description: 'Check your inbox for a reset link.'
+        })
+        setIsResetPasswordOpen(false) // Close modal after success
       } else {
         toast({
           title: 'Reset failed.',
-          description: result.message,
-        });
+          description: result.message
+        })
       }
     } catch (error) {
       toast({
         title: 'Reset failed.',
-        description: 'An error occurred while requesting the reset email.',
-      });
-      console.log(error);
+        description: 'An error occurred while requesting the reset email.'
+      })
+      console.log(error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const requestPasswordReset = async (email: string): Promise<{ success: boolean; message: string }> => {
     try {
-      console.log("asdqwsadawdqcawfeasc " + email + " asdsdadsdsa");
-      const response = await axios.post('http://localhost:5000/auth/forgot-password', { email }); // Adjust the endpoint as needed
+      const response = await resetPassword(email)
       return {
         success: true,
-        message: response.data.message,
-      };
-    } catch (error: any) {
+        message: response.message
+      }
+    } catch {
       return {
         success: false,
-        message: error.response?.data?.message || 'An error occurred while sending the reset email.',
-      };
+        message: 'An error occurred while sending the reset password email.'
+      }
     }
-  };
-
+  }
 
   return (
     <>
@@ -203,34 +209,37 @@ export function LoginModal() {
                 borderColor={colors.border}
                 startAdornment={googleIcon}
               />
-              <div className='flex flex-row gap-2 text-sm'>
-                <span style={{ color: colors.text_secondary }}>Don't have an account?</span>
-                <span
-                  style={{ color: colors.primary }}
-                  className='cursor-pointer font-medium'
-                  onClick={() => {
-                    navigateToRegistration()
-                  }}
-                >
-                  Sign up
-                </span>
-              </div>
-              <div className='flex flex-row gap-2 text-sm'>
-                <span style={{ color: colors.text_secondary }}>Forgot your password?</span>
-                <span
-                  style={{ color: colors.primary }}
-                  className='cursor-pointer font-medium'
-                  onClick={() => setIsForgotPasswordOpen(true)}>
-                  Reset here!
-                </span>
+              <div className='flex w-full flex-col items-center gap-2'>
+                <div className='flex flex-row gap-2 text-sm'>
+                  <span style={{ color: colors.text_secondary }}>Don't have an account?</span>
+                  <span
+                    style={{ color: colors.primary }}
+                    className='cursor-pointer font-medium'
+                    onClick={() => {
+                      navigateToRegistration()
+                    }}
+                  >
+                    Sign up
+                  </span>
+                </div>
+                <div className='flex flex-row gap-2 text-sm'>
+                  <span style={{ color: colors.text_secondary }}>Forgot your password?</span>
+                  <span
+                    style={{ color: colors.primary }}
+                    className='cursor-pointer font-medium'
+                    onClick={() => setIsResetPasswordOpen(true)}
+                  >
+                    Reset here!
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </form>
       </PrimaryModal>
-      {/* Forgot Password Modal */}
+      {/* Reset Password Modal */}
 
-      {isForgotPasswordOpen && (
+      {isResetPasswordOpen && (
         <div
           style={{
             position: 'fixed',
@@ -242,54 +251,55 @@ export function LoginModal() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000,
+            zIndex: 1000
           }}
         >
           <PrimaryModal isOpen={true}>
-            <div className="w-full flex flex-col gap-6" >
-              <span className="text-xl font-bold">Forgot Password</span>
+            <div className='flex w-full flex-col gap-4'>
+              <span className='mb-6 text-left text-3xl font-bold'>Reset Password</span>
               <form
-                onSubmit={handleSubmit(({ email }) => {
-                  handleForgotPassword(email); // Pass email from form state
+                onSubmit={handleResetPasswordSubmit(({ email }) => {
+                  handleResetPassword(email)
                 })}
-                className="flex flex-col gap-4"
+                className='flex flex-col gap-4'
               >
                 <Controller
-                  name="email"
-                  control={control}
+                  name='email'
+                  control={resetPasswordControl}
                   rules={{
                     required: 'Required',
-                    pattern: { value: emailRegex, message: 'Invalid email format.' },
+                    pattern: { value: emailRegex, message: 'Invalid email format.' }
                   }}
                   render={({ field: { value, onChange } }) => (
                     <FormInput
-                      label="Email"
-                      type="email"
-                      placeholder="Enter email here"
+                      label='Email'
+                      type='email'
+                      placeholder='Enter email here'
                       value={value}
-                      autocomplete="email"
+                      autocomplete='email'
                       onChange={onChange}
-                      indicator={errors.email ? errors.email.message || '' : ''}
+                      indicator={resetPasswordErrors.email ? resetPasswordErrors.email.message || '' : ''}
                     />
                   )}
                 />
                 <ButtonFullWidth
                   enabled={!isLoading}
-                  text="Send Reset Email"
+                  text='Send Reset Email'
                   isLoading={isLoading}
-                  onClick={handleSubmit(({ email }) => handleForgotPassword(email))}
+                  onClick={handleResetPasswordSubmit(({ email }) => handleResetPassword(email))}
                 />
               </form>
               <button
-                className="text-red-500 mt-4"
-                onClick={() => setIsForgotPasswordOpen(false)} >
+                className='bg-gray-200'
+                style={{ color: colors.text_primary }}
+                onClick={() => setIsResetPasswordOpen(false)}
+              >
                 Close
               </button>
             </div>
           </PrimaryModal>
         </div>
       )}
-
     </>
   )
 }

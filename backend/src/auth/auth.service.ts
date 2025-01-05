@@ -111,7 +111,7 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+    const { email } = loginDto;
     try {
       const user = await admin.auth().getUserByEmail(email);
       if (!user) {
@@ -165,7 +165,9 @@ export class AuthService {
 
   async resetPassword(token: string, newPassword: string): Promise<string> {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { uid: string };
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: string;
+      };
       const user = await admin.auth().getUser(decoded.uid);
       if (!user) {
         throw new BadRequestException('Invalid or expired reset token.');
@@ -180,11 +182,12 @@ export class AuthService {
     }
   }
 
-
   async updatePassword(uid: string, newPassword: string): Promise<string> {
     try {
       if (!newPassword || newPassword.length < 8) {
-        throw new BadRequestException('Password must be at least 8 characters long.');
+        throw new BadRequestException(
+          'Password must be at least 8 characters long.',
+        );
       }
       await admin.auth().updateUser(uid, { password: newPassword });
       return 'Password updated successfully.';

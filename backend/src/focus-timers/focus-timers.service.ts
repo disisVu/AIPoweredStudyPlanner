@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -13,6 +18,7 @@ export class FocusTimersService {
   constructor(
     @InjectModel(FocusTimer.name)
     private readonly focusTimerModel: Model<FocusTimerDocument>,
+    @Inject(forwardRef(() => TasksService))
     private readonly tasksService: TasksService,
   ) {}
 
@@ -66,5 +72,10 @@ export class FocusTimersService {
     await focusTimer.save();
 
     return focusTimer;
+  }
+
+  async deleteFocusTimer(focusTimerId: string): Promise<void> {
+    const result = await this.focusTimerModel.findByIdAndDelete(focusTimerId);
+    if (!result) throw new NotFoundException('Focus Timer not found');
   }
 }

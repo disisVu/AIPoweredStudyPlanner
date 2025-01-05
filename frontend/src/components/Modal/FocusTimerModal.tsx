@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast'
 import { Event } from '@/components/Calendar/event.type'
 import { colors, priorityColors, statusColors } from '@/styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEllipsisVertical, faPause, faPlay, faRefresh } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faEllipsisVertical, faPause, faPlay, faRefresh } from '@fortawesome/free-solid-svg-icons'
 import { DateTimeBadge, TaskBadge } from '@/components/Badge'
 import { taskPriorityLabels, taskStatusLabels } from '@/types/enum/taskLabel'
 import { Input } from '@/components/ui/input'
@@ -23,7 +23,9 @@ import { formatFocusTimer, getUserCredentials } from '@/utils'
 import { CreateFocusTimerDto } from '@/types/api/focusTimers'
 import { focusTimersApi } from '@/api/focusTimers.api'
 import { usersApi } from '@/api/users.api'
+import audioTimerFinish from '@/assets/audio/timerFinish.mp3'
 
+const timerInterval: number = 5
 const timeMultipler: number = 1
 const minFocusTime: number = 10
 const maxFocusTime: number = 60
@@ -50,6 +52,7 @@ export function FocusTimerModal() {
   const [, setTimeSpent] = useState(0)
   const [remainingTime, setRemainingTime] = useState(10 * timeMultipler)
   const [defaultValues, setDefaultValues] = useState<CreateFocusTimerDto | null>(null)
+  const [canMarkAsComplete, setCanMarkAsComplete] = useState<boolean>(false)
 
   const {
     control,
@@ -143,19 +146,19 @@ export function FocusTimerModal() {
       interval = setInterval(async () => {
         try {
           setRemainingTime((prevRemainingTime) => {
-            const newRemainingTime = prevRemainingTime - 10
+            const newRemainingTime = prevRemainingTime - timerInterval
             focusTimersApi.updateFocusTimer(focusTimerId!, { remainingTime: newRemainingTime })
             return newRemainingTime
           })
           setTimeSpent((prevTimeSpent) => {
-            const newTimeSpent = prevTimeSpent + 10
+            const newTimeSpent = prevTimeSpent + timerInterval
             focusTimersApi.updateFocusTimer(focusTimerId!, { timeSpent: newTimeSpent })
             return newTimeSpent
           })
         } catch (error) {
           console.error('Failed to update focus timer:', error)
         }
-      }, 10000) // Update every 10 seconds
+      }, timerInterval * 1000) // Update focus timer every n seconds
     } else if (!isPlaying && interval) {
       clearInterval(interval)
     }
@@ -286,10 +289,40 @@ export function FocusTimerModal() {
     handleSubmit(onSubmit)()
   }
 
+  const handleStopTimer = () => {
+    setIsPlaying(false)
+    dispatch(setTimerIsRunning(false))
+  }
+
   const handleTimerPhaseChange = () => {
     setIsFocusPhase((prev) => !prev)
     setRemainingTime(focusDuration * timeMultipler)
+    setCanMarkAsComplete(true)
     setKey((prevKey) => prevKey + 1)
+  }
+
+  const playTimerFinishAudio = () => {
+    const audio = new Audio(audioTimerFinish)
+    audio.volume = 1
+    audio.play()
+  }
+
+  const markTaskAsComplete = async () => {
+    try {
+      if (task) {
+        const updatedTask = await tasksApi.updateTask(task._id!, { status: 'C' })
+        setTask(updatedTask)
+        toast({
+          title: 'Task marked as complete.',
+          description: 'Task has been marked as complete.'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Failed to mark task as complete.',
+        description: error instanceof Error ? error.message : 'An error occurred during updating task.'
+      })
+    }
   }
 
   const canStartTimer: boolean = task === null ? false : task?.status === 'IP' ? true : false
@@ -421,6 +454,8 @@ export function FocusTimerModal() {
             0
           ]}
           onComplete={() => {
+            playTimerFinishAudio()
+            handleStopTimer()
             handleTimerPhaseChange()
             return { shouldRepeat: false }
           }}
@@ -436,26 +471,37 @@ export function FocusTimerModal() {
             )
           }}
         </CountdownCircleTimer>
-        <div className='flex w-full justify-between'>
-          <div className='w-[132px]'>
-            {!isPlaying ? (
+        <div className='flex w-full flex-col gap-4'>
+          <div className='flex w-full justify-between gap-4'>
+            <div className='w-full'>
+              {!isPlaying ? (
+                <ButtonFullWidth
+                  enabled={canStartTimer && isValid}
+                  text='Start'
+                  icon={faPlay}
+                  onClick={handleStartAndSubmit}
+                />
+              ) : (
+                <ButtonFullWidth enabled={true} text='Pause' icon={faPause} onClick={handlePauseTimer} />
+              )}
+            </div>
+            <div className='w-full'>
               <ButtonFullWidth
-                enabled={canStartTimer && isValid}
-                text='Start'
-                icon={faPlay}
-                onClick={handleStartAndSubmit}
+                enabled={canStartTimer && !isPlaying}
+                text='Set Timer'
+                icon={faRefresh}
+                onClick={handleResetAndSubmit}
+                backgroundColor='#f00'
               />
-            ) : (
-              <ButtonFullWidth enabled={true} text='Pause' icon={faPause} onClick={handlePauseTimer} />
-            )}
+            </div>
           </div>
-          <div className='w-[132px]'>
+          <div className='w-full'>
             <ButtonFullWidth
-              enabled={!isPlaying}
-              text='Set Timer'
-              icon={faRefresh}
-              onClick={handleResetAndSubmit}
-              backgroundColor='#f00'
+              enabled={canMarkAsComplete && canStartTimer && !isPlaying}
+              text='Mark Task as Complete'
+              icon={faCheck}
+              onClick={markTaskAsComplete}
+              backgroundColor='#5bb450'
             />
           </div>
         </div>

@@ -1,10 +1,13 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, SchemaTypes, Types } from 'mongoose';
 
 export type EventDocument = Event & Document;
 
 @Schema({ timestamps: true })
 export class Event {
+  @Prop({ type: SchemaTypes.ObjectId, auto: true })
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
   userId: string;
 

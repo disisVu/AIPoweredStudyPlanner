@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FocusTimersService } from './focus-timers.service';
 import { FocusTimersController } from './focus-timers.controller';
@@ -12,7 +12,7 @@ import { AuthModule } from '@/auth/auth.module';
       { name: FocusTimer.name, schema: FocusTimerSchema },
     ]),
     AuthModule,
-    TasksModule,
+    forwardRef(() => TasksModule),
   ],
   providers: [FocusTimersService],
   controllers: [FocusTimersController],

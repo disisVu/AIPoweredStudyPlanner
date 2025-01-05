@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Event, EventDocument } from '@/events/event.schema';
@@ -9,6 +14,7 @@ import { TasksService } from '../tasks/tasks.service';
 export class EventsService {
   constructor(
     @InjectModel(Event.name) private readonly eventModel: Model<EventDocument>,
+    @Inject(forwardRef(() => TasksService))
     private readonly tasksService: TasksService,
   ) {}
 
@@ -120,5 +126,10 @@ export class EventsService {
     await this.tasksService.updateTask(taskId, { status: newTaskStatus });
 
     return event;
+  }
+
+  async deleteEvent(eventId: string): Promise<void> {
+    const result = await this.eventModel.findByIdAndDelete(eventId);
+    if (!result) throw new NotFoundException('Event not found');
   }
 }

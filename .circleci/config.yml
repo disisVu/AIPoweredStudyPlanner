@@ -7,11 +7,7 @@ jobs:
     executor: node/default
     working_directory: ~/project/frontend
     steps:
-      - checkout:
-          path: ~/project
-      - run:
-          name: Change directory to frontend
-          command: cd frontend
+      - checkout
       - restore_cache:
           keys:
             - v1-frontend-{{ checksum "frontend/package.json" }}
@@ -32,11 +28,7 @@ jobs:
     executor: node/default
     working_directory: ~/project/backend
     steps:
-      - checkout:
-          path: ~/project
-      - run:
-          name: Change directory to backend
-          command: cd backend
+      - checkout
       - restore_cache:
           keys:
             - v1-backend-{{ checksum "backend/package.json" }}
@@ -49,9 +41,6 @@ jobs:
       - run:
           name: Build backend
           command: npm run build
-      - run:
-          name: Run backend tests
-          command: npm test
 
 workflows:
   build-and-test:

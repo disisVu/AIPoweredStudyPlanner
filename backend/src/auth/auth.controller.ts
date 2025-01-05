@@ -1,4 +1,14 @@
-import { Controller, Get, UseGuards, Req, Post, Body, Param, BadRequestException, Res, Redirect } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Post,
+  Body,
+  Param,
+  BadRequestException,
+  Redirect,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FirebaseAuthGuard } from './auth.guard';
 import { LoginDto, RegisterDto } from './dto/autg.dto';
@@ -39,20 +49,27 @@ export class AuthController {
   }
 
   @Post('reset-password/:token')
-  async resetPassword(@Param('token') token: string, @Body('newPassword') newPassword: string) {
+  async resetPassword(
+    @Param('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
     if (!newPassword || newPassword.length < 8) {
-      throw new BadRequestException('Password must be at least 8 characters long.');
+      throw new BadRequestException(
+        'Password must be at least 8 characters long.',
+      );
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { uid: string };
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: string;
+      };
       const userId = decoded.uid;
 
       // Update the user's password (replace with your actual DB logic)
       await this.authService.updatePassword(userId, newPassword);
 
       return { success: true, message: 'Password reset successful.' };
-    } catch (error) {
+    } catch {
       throw new BadRequestException('Invalid or expired token.');
     }
   }

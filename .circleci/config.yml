@@ -7,8 +7,7 @@ jobs:
     executor: node/default
     working_directory: ~/project/frontend
     steps:
-      - checkout:
-          path: ~/project
+      - checkout
       - run:
           name: Change directory to frontend
           command: cd ~/project/frontend
@@ -32,8 +31,7 @@ jobs:
     executor: node/default
     working_directory: ~/project/backend
     steps:
-      - checkout:
-          path: ~/project
+      - checkout
       - run:
           name: Change directory to backend
           command: cd ~/project/backend

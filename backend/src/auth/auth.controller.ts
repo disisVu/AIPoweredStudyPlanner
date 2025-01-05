@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(FirebaseAuthGuard)
   @Get('profile')

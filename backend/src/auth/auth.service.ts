@@ -48,7 +48,7 @@ export class AuthService {
         email,
         password,
         displayName: username,
-        disabled: true
+        disabled: true,
       });
 
       const activationToken = jwt.sign(
@@ -71,7 +71,8 @@ export class AuthService {
 
       return {
         success: true,
-        message: 'Registration successful. Check your email to activate your account.',
+        message:
+          'Registration successful. Check your email to activate your account.',
         data: {
           uid: userRecord.uid,
           email: userRecord.email,
@@ -89,7 +90,9 @@ export class AuthService {
   async activateAccount(token: string) {
     try {
       // Verify the activation token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { uid: string };
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: string;
+      };
       // Activate the user in Firebase
       const userRecord = await admin.auth().getUser(decoded.uid);
       if (!userRecord.disabled) {

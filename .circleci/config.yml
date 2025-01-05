@@ -7,49 +7,47 @@ jobs:
     executor: node/default
     working_directory: ~/project/frontend
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
-          name: Change directory to frontend
-          command: cd ~/project/frontend
+          name: Install frontend dependencies
+          command: cd frontend && npm install
       - restore_cache:
           keys:
             - v1-frontend-{{ checksum "frontend/package.json" }}
-      - node/install-packages:
-          pkg-manager: npm
       - save_cache:
           paths:
             - ~/project/frontend/node_modules
           key: v1-frontend-{{ checksum "frontend/package.json" }}
       - run:
           name: Build frontend
-          command: npm run build
+          command: cd frontend && npm run build
       - store_artifacts:
-          path: ~/project/frontend/build
+          path: ~/project/frontend/dist
           destination: frontend-build
 
   build-backend:
     executor: node/default
     working_directory: ~/project/backend
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
-          name: Change directory to backend
-          command: cd ~/project/backend
+          name: Install backend dependencies
+          command: cd backend && npm install
       - restore_cache:
           keys:
             - v1-backend-{{ checksum "backend/package.json" }}
-      - node/install-packages:
-          pkg-manager: npm
       - save_cache:
           paths:
             - ~/project/backend/node_modules
           key: v1-backend-{{ checksum "backend/package.json" }}
       - run:
           name: Build backend
-          command: npm run build
+          command: cd backend && npm run build
       - run:
           name: Run backend tests
-          command: npm test
+          command: cd backend && npm test
 
 workflows:
   build-and-test:

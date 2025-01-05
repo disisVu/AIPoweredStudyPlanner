@@ -39,12 +39,12 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         },
       },
       defaults: {
-        from: '"No Reply" <no-reply@example.com>', // Default from email
+        from: '"No Reply" <no-reply@example.com>',
       },
       template: {
         dir: process.env.NODE_ENV === 'production'
-          ? __dirname + '/src/templates' // Production: Look in the `dist` folder
-          : __dirname + '/../src/templates', // Directory for email templates
+          ? __dirname + '/src/templates' 
+          : __dirname + '/../src/templates',
         adapter: new HandlebarsAdapter(), // Use Handlebars for templates
         options: {
           strict: true,

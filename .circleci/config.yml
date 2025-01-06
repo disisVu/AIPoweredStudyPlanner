@@ -57,7 +57,7 @@ jobs:
       - run:
           name: Deploy to Vercel
           command: |
-            vercel --token $VERCEL_TOKEN --prod
+            vercel --token $VERCEL_TOKEN --prod --confirm
 
   deploy-render:
     docker:

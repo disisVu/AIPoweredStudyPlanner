@@ -1,6 +1,6 @@
 import React from 'react'
 import { Line } from 'react-chartjs-2'
-import { DailyTimeResponse } from './analyticsService'
+import { DailyTimeResponse } from '@/types/api/analytics'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,7 +21,7 @@ interface DailyTimeChartProps {
   dailyTime: DailyTimeResponse
 }
 
-const DailyTimeChart: React.FC<DailyTimeChartProps> = ({ dailyTime }) => {
+export const DailyTimeChart: React.FC<DailyTimeChartProps> = ({ dailyTime }) => {
   const data = {
     labels: Object.keys(dailyTime),
     datasets: [
@@ -55,5 +55,3 @@ const DailyTimeChart: React.FC<DailyTimeChartProps> = ({ dailyTime }) => {
     </div>
   )
 }
-
-export default DailyTimeChart

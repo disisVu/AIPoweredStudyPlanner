@@ -44,7 +44,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
 
   useEffect(() => {
     if (!userId) {
-      console.log('User ID is missing or invalid.')
       return
     }
 

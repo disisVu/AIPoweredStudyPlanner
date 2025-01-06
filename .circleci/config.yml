@@ -57,7 +57,7 @@ jobs:
       - run:
           name: Deploy to Vercel
           command: |
-            vercel --token $VERCEL_TOKEN --prod
+            vercel --token $VERCEL_TOKEN --prod --confirm
 
   deploy-render:
     docker:
@@ -73,7 +73,14 @@ jobs:
               https://api.render.com/v1/deploys
 
 workflows:
-  build-and-test:
+  build-and-deploy:
     jobs:
       - build-frontend
       - build-backend
+      - deploy-render:
+          requires:
+            - build-frontend
+            - build-backend
+      - deploy-vercel:
+          requires:
+            - deploy-render

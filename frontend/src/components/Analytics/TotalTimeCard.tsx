@@ -1,5 +1,5 @@
 import React from 'react'
-import { TotalTimeResponse } from './analyticsService'
+import { TotalTimeResponse } from '@/types/api/analytics'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { colors } from '@/styles'
 import { faClockFour } from '@fortawesome/free-regular-svg-icons'
@@ -8,7 +8,7 @@ interface TotalTimeCardProps {
   totalTime: TotalTimeResponse
 }
 
-const TotalTimeCard: React.FC<TotalTimeCardProps> = ({ totalTime }) => {
+export const TotalTimeCard: React.FC<TotalTimeCardProps> = ({ totalTime }) => {
   const { total_time_spent, total_estimated_time } = totalTime
 
   const spentMinutes = Math.floor(total_time_spent / 60)
@@ -51,5 +51,3 @@ const TotalTimeCard: React.FC<TotalTimeCardProps> = ({ totalTime }) => {
     </div>
   )
 }
-
-export default TotalTimeCard

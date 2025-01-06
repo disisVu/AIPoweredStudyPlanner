@@ -1,6 +1,6 @@
 import React from 'react'
 import { Pie } from 'react-chartjs-2'
-import { TaskStatusResponse } from './analyticsService'
+import { TaskStatusResponse } from '@/types/api/analytics'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { faChartPie } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -12,7 +12,7 @@ interface TaskStatusChartProps {
   taskStatus: TaskStatusResponse
 }
 
-const TaskStatusChart: React.FC<TaskStatusChartProps> = ({ taskStatus }) => {
+export const TaskStatusChart: React.FC<TaskStatusChartProps> = ({ taskStatus }) => {
   const data = {
     labels: Object.keys(taskStatus),
     datasets: [
@@ -47,5 +47,3 @@ const TaskStatusChart: React.FC<TaskStatusChartProps> = ({ taskStatus }) => {
     </div>
   )
 }
-
-export default TaskStatusChart

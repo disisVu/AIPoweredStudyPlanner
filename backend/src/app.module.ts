@@ -18,7 +18,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     // Loads .env & configuration.ts
     ConfigModule.forRoot({
       load: [configuration],
-      isGlobal: true
+      isGlobal: true,
     }),
     // Connects to MongoDB
     MongooseModule.forRoot(process.env.MONGO_URI),
@@ -42,9 +42,10 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         from: '"No Reply" <no-reply@example.com>',
       },
       template: {
-        dir: process.env.NODE_ENV === 'production'
-          ? __dirname + '/src/templates' 
-          : __dirname + '/../src/templates',
+        dir:
+          process.env.NODE_ENV === 'production'
+            ? __dirname + '/src/templates'
+            : __dirname + '/../src/templates',
         adapter: new HandlebarsAdapter(), // Use Handlebars for templates
         options: {
           strict: true,
@@ -55,4 +56,4 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

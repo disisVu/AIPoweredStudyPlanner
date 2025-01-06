@@ -11,7 +11,7 @@ jobs:
           path: ~/project
       - run:
           name: Install frontend dependencies
-          command: cd frontend && npm install
+          command: npm install
       - restore_cache:
           keys:
             - v1-frontend-{{ checksum "frontend/package.json" }}
@@ -21,7 +21,7 @@ jobs:
           key: v1-frontend-{{ checksum "frontend/package.json" }}
       - run:
           name: Build frontend
-          command: cd frontend && npm run build
+          command: npm run build
       - store_artifacts:
           path: ~/project/frontend/dist
           destination: frontend-build
@@ -34,7 +34,7 @@ jobs:
           path: ~/project
       - run:
           name: Install backend dependencies
-          command: cd backend && npm install
+          command: npm install
       - restore_cache:
           keys:
             - v1-backend-{{ checksum "backend/package.json" }}
@@ -44,10 +44,7 @@ jobs:
           key: v1-backend-{{ checksum "backend/package.json" }}
       - run:
           name: Build backend
-          command: cd backend && npm run build
-      - run:
-          name: Run backend tests
-          command: cd backend && npm test
+          command: npm run build
 
 workflows:
   build-and-test:

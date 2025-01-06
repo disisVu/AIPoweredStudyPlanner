@@ -45,7 +45,7 @@ export function EditTaskModal({ initialTask }: EditTaskModalProps) {
     try {
       const updatedTask = await tasksApi.updateTask(initialTask._id!, {
         ...data,
-        estimatedTime: data.estimatedTime * 60
+        estimatedTime: data.estimatedTime! * 60 || 60
       })
       dispatch(updateTask(updatedTask))
       toast({

@@ -5,12 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors({
-    origin: 'https://ai-powered-study-planner-eight.vercel.app',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
-    credentials: true,
-  });
+  app.enableCors({});
   await app.listen(process.env.PORT ?? 5000);
 }
 bootstrap();

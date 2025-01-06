@@ -18,7 +18,7 @@ jobs:
       - save_cache:
           paths:
             - ~/project/frontend/node_modules
-          key: v1-frontend-{{ checksum "frontend/package.json" }}
+          key: v1-frontend-{{ checksum "package.json" }}
       - run:
           name: Build frontend
           command: npm run build
@@ -41,7 +41,7 @@ jobs:
       - save_cache:
           paths:
             - ~/project/backend/node_modules
-          key: v1-backend-{{ checksum "backend/package.json" }}
+          key: v1-backend-{{ checksum "package.json" }}
       - run:
           name: Build backend
           command: npm run build

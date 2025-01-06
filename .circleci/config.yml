@@ -14,7 +14,7 @@ jobs:
           command: npm install
       - restore_cache:
           keys:
-            - v1-frontend-{{ checksum "frontend/package.json" }}
+            - v1-frontend-{{ checksum "package.json" }}
       - save_cache:
           paths:
             - ~/project/frontend/node_modules
@@ -37,7 +37,7 @@ jobs:
           command: npm install
       - restore_cache:
           keys:
-            - v1-backend-{{ checksum "backend/package.json" }}
+            - v1-backend-{{ checksum "package.json" }}
       - save_cache:
           paths:
             - ~/project/backend/node_modules

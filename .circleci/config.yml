@@ -46,6 +46,32 @@ jobs:
           name: Build backend
           command: npm run build
 
+  deploy-vercel:
+    docker:
+      - image: node:18-alpine3.21
+    steps:
+      - checkout
+      - run:
+          name: Install Vercel CLI
+          command: npm install -g vercel
+      - run:
+          name: Deploy to Vercel
+          command: |
+            vercel --token $VERCEL_TOKEN --prod
+
+  deploy-render:
+    docker:
+      - image: curlimages/curl
+    steps:
+      - run:
+          name: Deploy to Render
+          command: |
+            curl -X POST \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{"serviceId":"${RENDER_SERVICE_ID}"}' \
+              https://api.render.com/v1/deploys
+
 workflows:
   build-and-test:
     jobs:

@@ -1,0 +1,16 @@
+# Build Stage
+FROM node:18-alpine3.21 AS build-stage
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Production Stage
+FROM node:18-alpine3.21 AS production-stage
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --only=production
+COPY --from=build-stage /app/dist ./dist
+EXPOSE 5000
+CMD ["npm", "run", "start:prod"]

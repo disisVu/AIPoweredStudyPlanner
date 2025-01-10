@@ -4,14 +4,15 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-COPY .env .env
+RUN ls -la
 RUN npm run build
 
-# Production Stage
-FROM node:18-alpine3.21 AS production-stage
+# Development Stage
+FROM node:18-alpine3.21 AS development-stage
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm install --only=development
 COPY --from=build-stage /app/dist ./dist
+RUN ls -la
 EXPOSE 5000
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "start:dev"]

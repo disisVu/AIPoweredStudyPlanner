@@ -58,6 +58,9 @@ export function TaskModal({ action, initialTask, onClose, triggerComponent }: Ta
           isDistributed: initialTask?.isDistributed || false
         }
 
+  console.log('Initial Task:', initialTask)
+  console.log('Default Values:', defaultValues)
+
   const {
     control,
     handleSubmit,
@@ -73,6 +76,7 @@ export function TaskModal({ action, initialTask, onClose, triggerComponent }: Ta
       if (action === 'add') {
         return tasksApi.createTask(data as CreateTaskDto)
       } else if (initialTask?._id) {
+        console.log('Initial Task status:', initialTask?.status)
         return tasksApi.updateTask(initialTask._id, data as UpdateTaskDto)
       } else {
         throw new Error('Task ID is missing for update action.')
@@ -100,12 +104,13 @@ export function TaskModal({ action, initialTask, onClose, triggerComponent }: Ta
   })
 
   const onSubmit: SubmitHandler<CreateTaskDto | UpdateTaskDto> = async (data) => {
+    console.log('Submitted Data:', data)
     mutation.mutate(data)
   }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>{triggerComponent}</DialogTrigger>
+      {triggerComponent && <DialogTrigger asChild>{triggerComponent}</DialogTrigger>}
       <DialogContent className='sm:max-w-[540px]'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader className='mb-4'>

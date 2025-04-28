@@ -8,13 +8,13 @@ import { taskPriorityLabels, taskStatusLabels } from '@/types/enum/taskLabel'
 import { colors, priorityColors, statusColors } from '@/styles'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { TaskModal } from '@/components/Modal'
 
 interface TaskTableColumnsProps {
+  openModal: (task: Task) => void
   handleDeleteTask: (taskId: string) => void
 }
 
-export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): ColumnDef<Task>[] => [
+export const taskTableColumns = ({ openModal, handleDeleteTask }: TaskTableColumnsProps): ColumnDef<Task>[] => [
   {
     accessorKey: 'name',
     header: ({ column }) => {
@@ -135,7 +135,7 @@ export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): C
                     Task Actions
                   </span>
                 </div>
-                <TaskModal
+                {/* <TaskModal
                   action='update'
                   initialTask={task}
                   triggerComponent={
@@ -147,7 +147,18 @@ export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): C
                       <span>Edit</span>
                     </div>
                   }
-                />
+                /> */}
+                <div
+                  className='flex w-full cursor-pointer gap-4 px-4 py-2 hover:bg-gray-200'
+                  style={{ color: colors.text_primary }}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    openModal(task)
+                  }}
+                >
+                  <FontAwesomeIcon icon={faPenToSquare} size='lg' />
+                  <span>Edit</span>
+                </div>
                 <div
                   className='flex w-full cursor-pointer gap-4 px-4 py-2 hover:bg-gray-200'
                   style={{ color: colors.text_primary }}

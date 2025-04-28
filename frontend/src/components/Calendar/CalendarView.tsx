@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import moment from 'moment'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import withDragAndDrop, { EventInteractionArgs } from 'react-big-calendar/lib/addons/dragAndDrop'
@@ -12,13 +12,13 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Event } from './event.type'
 import { Event as ZodEvent } from '@/types/schemas'
 import { convertToDate, getUserCredentials } from '@/utils'
-import { CreateEventDto } from '@/types/api/events'
+import { CreateEventDto, UpdateEventDto } from '@/types/api/events'
 import { eventsApi } from '@/api/events.api'
 import { FocusTimerModal } from '@/components/Modal'
 import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '../../store'
-import { setCurrentEventId } from '../../store/reducers/sessionSlice'
-import { useQuery } from '@tanstack/react-query'
+import { AppDispatch, RootState } from '@/store'
+import { setCurrentEventId } from '@/store/reducers/sessionSlice'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
 
@@ -28,66 +28,51 @@ interface CalendarViewProps {
 }
 
 export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProps) {
-  // Get user ID
-  const [userId, setUserId] = useState<string | null>()
+  const queryClient = useQueryClient()
   const { uid } = getUserCredentials()
+  const localizer = momentLocalizer(moment)
+  const [myEvents, setMyEvents] = useState<Event[]>([])
 
-  const {
-    isLoading,
-    isError,
-    data: events,
-    error
-  } = useQuery({
+  useQuery({
     queryKey: ['events', uid],
     queryFn: async () => {
       if (!uid) {
         throw new Error('Unauthorized user.')
       }
       const data = await eventsApi.getEventsByUserId(uid)
+      const formattedEvents = data.map((event: ZodEvent) => ({
+        ...event,
+        _id: event._id ?? '',
+        start: new Date(event.start),
+        end: new Date(event.end),
+        isDraggable: true,
+        isAllDay: false
+      }))
+      setMyEvents(formattedEvents)
       return data
     },
     enabled: !!uid
   })
 
-  useEffect(() => {
-    if (!userId) {
-      const { uid } = getUserCredentials()
-      setUserId(uid)
+  const createEventMutation = useMutation({
+    mutationKey: ['createEvent'],
+    mutationFn: async (data: CreateEventDto) => {
+      const createdEvent = await eventsApi.createEvent(data as CreateEventDto)
+      return createdEvent
     }
-  }, [userId])
+  })
 
-  const localizer = momentLocalizer(moment)
-
-  // State to hold the myEvents
-  const [myEvents, setMyEvents] = useState<Event[]>([])
-
-  useEffect(() => {
-    if (!userId) {
-      return
-    }
-
-    const fetchEvents = async () => {
-      try {
-        const fetchedEvents = await eventsApi.getEventsByUserId(userId)
-
-        // Ensure start and end are Date objects
-        const formattedEvents = fetchedEvents.map((event: ZodEvent) => ({
-          ...event,
-          _id: event._id ?? '',
-          start: new Date(event.start),
-          end: new Date(event.end),
-          isDraggable: true,
-          isAllDay: false
-        }))
-
-        setMyEvents(formattedEvents)
-      } catch {
-        console.log('Failed to fetch events.')
+  const updateEventMutation = useMutation({
+    mutationKey: ['updateEvent'],
+    mutationFn: async (data: UpdateEventDto) => {
+      const { eventId, ...updateData } = data
+      if (!eventId) {
+        throw new Error('Event ID is missing for update action.')
       }
+      const updatedEvent = await eventsApi.updateEvent(eventId, updateData as UpdateEventDto)
+      return updatedEvent
     }
-
-    fetchEvents()
-  }, [userId])
+  })
 
   // Event property customization for draggable events
   const eventPropGetter = useCallback(
@@ -102,43 +87,6 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
     return 'start'
   }, [])
 
-  // Move an event to a new position
-  const moveEvent = useCallback(
-    async ({ event, start, end, isAllDay: droppedOnAllDaySlot = false }: EventInteractionArgs<Event>) => {
-      try {
-        // Update the event on the server
-        await eventsApi.updateEvent(event._id, {
-          start: convertToDate(start),
-          end: convertToDate(end)
-        })
-
-        // Update the state
-        setMyEvents((prev) => {
-          // Find the existing event in the state
-          const existing = prev.find((ev) => ev._id === event._id)
-
-          // If the event doesn't exist in the state, return the previous state unchanged
-          if (!existing) return prev
-
-          // Create a new event object with the updated fields
-          const updatedEvent = {
-            ...existing,
-            start: convertToDate(start),
-            end: convertToDate(end),
-            isAllDay: droppedOnAllDaySlot
-          }
-
-          // Remove the old event and add the updated event
-          const filtered = prev.filter((ev) => ev._id !== event._id)
-          return [...filtered, updatedEvent]
-        })
-      } catch (error) {
-        console.error('Failed to update event:', error)
-      }
-    },
-    []
-  )
-
   // Handle dropping from outside the calendar
   const onDropFromOutside = useCallback(
     async ({ start, end, allDay }: { start: string | Date; end: string | Date; allDay?: boolean }) => {
@@ -147,80 +95,126 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         return
       }
 
-      const { taskId, title } = draggedEvent as Event
+      const { taskId } = draggedEvent as Event
 
-      // Ensure that start and end are Date objects
-      const startDate = new Date(start)
-      const endDate = new Date(end)
-
-      // Prepare the event data for the API request
-      const eventData: CreateEventDto = {
-        taskId,
-        userId: userId!,
-        start: startDate,
-        end: endDate
-      }
-
-      try {
-        // Call the API to create the event
-        const createdEvent = await eventsApi.createEvent(eventData)
-
-        // Update the local state with the newly created event
-        setMyEvents((prev) => [
-          ...prev,
-          {
-            _id: createdEvent._id,
-            taskId,
-            userId: userId!,
-            title,
-            start: startDate,
-            end: endDate,
-            isAllDay: allDay || false,
-            isDraggable: true
-          } as Event
-        ])
-      } catch (error) {
-        console.error('Failed to create event:', error)
-      } finally {
-        // Reset the dragged event regardless of success or failure
-        setDraggedEvent(undefined)
-      }
+      createEventMutation.mutate(
+        {
+          taskId,
+          userId: uid!,
+          start: convertToDate(start),
+          end: convertToDate(end)
+        } as CreateEventDto,
+        {
+          onSuccess: (createdEvent) => {
+            try {
+              // Update the local state with the newly created event
+              setMyEvents((prev) => [
+                ...prev,
+                {
+                  _id: createdEvent._id,
+                  taskId: createdEvent.taskId,
+                  userId: uid!,
+                  title: createdEvent.title,
+                  start: new Date(createdEvent.start),
+                  end: new Date(createdEvent.end),
+                  isAllDay: allDay || false,
+                  isDraggable: true
+                } as Event
+              ])
+              // Update undistributed tasks list in Task Panel (drag source)
+              queryClient.invalidateQueries({
+                queryKey: ['tasks', uid, 'undistributed'],
+                exact: true,
+                refetchType: 'active'
+              })
+            } catch (error) {
+              console.error('Failed to create event:', error)
+            } finally {
+              // Reset the dragged event regardless of success or failure
+              setDraggedEvent(undefined)
+            }
+          }
+        }
+      )
     },
-    [draggedEvent, setDraggedEvent, userId]
+    [createEventMutation, draggedEvent, queryClient, setDraggedEvent, uid]
+  )
+
+  // Move an event to a new position
+  const moveEvent = useCallback(
+    async ({ event, start, end, isAllDay: droppedOnAllDaySlot = false }: EventInteractionArgs<Event>) => {
+      // Update the event on the server
+      updateEventMutation.mutate(
+        {
+          eventId: event._id,
+          start: convertToDate(start),
+          end: convertToDate(end)
+        } as UpdateEventDto,
+        {
+          onSuccess: () => {
+            // Update the state
+            setMyEvents((prev) => {
+              // Find the existing event in the state
+              const existing = prev.find((ev) => ev._id === event._id)
+
+              // If the event doesn't exist in the state, return the previous state unchanged
+              if (!existing) return prev
+
+              // Create a new event object with the updated fields
+              const updatedEvent = {
+                ...existing,
+                start: convertToDate(start),
+                end: convertToDate(end),
+                isAllDay: droppedOnAllDaySlot
+              }
+
+              // Remove the old event and add the updated event
+              const filtered = prev.filter((ev) => ev._id !== event._id)
+              return [...filtered, updatedEvent]
+            })
+          }
+        }
+      )
+    },
+    [updateEventMutation]
   )
 
   // Resize an event
-  const resizeEvent = useCallback(async ({ event, start, end }: EventInteractionArgs<Event>) => {
-    try {
-      // Update the event on the server
-      await eventsApi.updateEvent(event._id, {
-        start: convertToDate(start),
-        end: convertToDate(end)
-      })
-
-      // Update the state
-      setMyEvents((prev) => {
-        // Find the existing event in the state
-        const existing = prev.find((ev) => ev._id === event._id)
-
-        // If the event doesn't exist, just return the previous state unchanged
-        if (!existing) return prev
-
-        // Update the existing event with new start and end values
-        const updatedEvent = {
-          ...existing,
+  const resizeEvent = useCallback(
+    async ({ event, start, end }: EventInteractionArgs<Event>) => {
+      updateEventMutation.mutate(
+        {
+          eventId: event._id,
           start: convertToDate(start),
           end: convertToDate(end)
-        }
+        } as UpdateEventDto,
+        {
+          onSuccess: () => {
+            // Update the state
+            setMyEvents((prev) => {
+              // Find the existing event in the state
+              const existing = prev.find((ev) => ev._id === event._id)
 
-        // Filter out the old event and return the updated event
-        const filtered = prev.filter((ev) => ev._id !== event._id)
-        return [...filtered, updatedEvent]
-      })
-    } catch (error) {
-      console.error('Failed to update event:', error)
-    }
-  }, [])
+              // If the event doesn't exist, just return the previous state unchanged
+              if (!existing) return prev
+
+              // Update the existing event with new start and end values
+              const updatedEvent = {
+                ...existing,
+                start: convertToDate(start),
+                end: convertToDate(end)
+              }
+
+              // Filter out the old event and return the updated event
+              const filtered = prev.filter((ev) => ev._id !== event._id)
+              return [...filtered, updatedEvent]
+            })
+          }
+        }
+      )
+    },
+    [updateEventMutation]
+  )
 
   // Default date for the calendar
   const { defaultDate } = useMemo(() => ({ defaultDate: new Date() }), [])

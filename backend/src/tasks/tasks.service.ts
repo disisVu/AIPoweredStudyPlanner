@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -36,6 +37,7 @@ export class TasksService {
     taskId: string,
     updateTaskDto: UpdateTaskDto,
   ): Promise<Task> {
+    Logger.log('DTO:', updateTaskDto);
     const task = await this.taskModel.findByIdAndUpdate(taskId, updateTaskDto, {
       new: true,
     });

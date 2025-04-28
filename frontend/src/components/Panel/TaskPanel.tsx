@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
 import { colors, priorityColors, statusColors } from '@/styles'
 import { Task } from '@/types/schemas/Task'
 import { tasksApi } from '@/api/tasks.api'
@@ -8,40 +8,30 @@ import { Event } from '@/components/Calendar/event.type'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendar, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
 import { taskPriorityLabels, taskStatusLabels } from '@/types/enum/taskLabel'
+import { useQuery } from '@tanstack/react-query'
 
 interface TaskPanelProps {
   setDraggedEvent: React.Dispatch<React.SetStateAction<Event | 'undroppable' | undefined>>
 }
 
 export function TaskPanel({ setDraggedEvent }: TaskPanelProps) {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
+  const { uid } = getUserCredentials()
 
-  // Fetch tasks by user ID
-  useEffect(() => {
-    const { uid } = getUserCredentials()
-
-    // If uid is null or not found, stop the process and show an error
-    if (!uid) {
-      setError('User ID is missing or invalid.')
-      return
-    }
-
-    const fetchTasks = async () => {
-      try {
-        setLoading(true)
-        const fetchedTasks = await tasksApi.getUndistributedTasksByUserId(uid)
-        setTasks(fetchedTasks)
-      } catch {
-        setError('Failed to load tasks.')
-      } finally {
-        setLoading(false)
+  const {
+    isLoading,
+    isError,
+    data: tasks = []
+  } = useQuery({
+    queryKey: ['tasks', uid, 'undistributed'],
+    queryFn: async () => {
+      if (!uid) {
+        throw new Error('Unauthorized user.')
       }
-    }
-
-    fetchTasks()
-  }, [])
+      const data = await tasksApi.getUndistributedTasksByUserId(uid)
+      return data
+    },
+    enabled: !!uid
+  })
 
   // Handle drag start and set the dragged event
   const handleDragStart = useCallback(
@@ -61,8 +51,8 @@ export function TaskPanel({ setDraggedEvent }: TaskPanelProps) {
         <span className='text-md font-semibold'>Undistributed Tasks</span>
       </div>
 
-      {loading && <p>Loading tasks...</p>}
-      {error && <p className='text-red-500'>{error}</p>}
+      {isLoading && <p>Fetching tasks...</p>}
+      {isError && <p className='text-red-500'>Failed to fetch tasks.</p>}
 
       <ul className='space-y-3'>
         {tasks.map((task) => (

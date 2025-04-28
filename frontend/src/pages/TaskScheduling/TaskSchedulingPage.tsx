@@ -4,7 +4,7 @@ import { CollapsibleContent } from '@/components/ui/collapsible'
 import { TaskPanel } from '@/components/Panel'
 import { Event } from '@/components/Calendar/event.type'
 
-export function TaskSchedulingPage() {
+function TaskSchedulingPage() {
   const [draggedEvent, setDraggedEvent] = useState<Event | 'undroppable' | undefined>()
 
   return (
@@ -18,3 +18,5 @@ export function TaskSchedulingPage() {
     </div>
   )
 }
+
+export default TaskSchedulingPage

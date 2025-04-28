@@ -1,25 +1,49 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { llmApi } from '@/api/apiLLM'
-import { Loader } from '@/components/Indicator'
-import { RootState } from '@/store'
+import { LoadingIndicator } from '@/components/Indicator'
 import { useToast } from '@/hooks/use-toast'
-import { buildPrompt, formatTextToHTML } from '@/utils'
+import { buildPrompt, formatTextToHTML, getUserCredentials } from '@/utils'
 import { ToolLabel } from '@/components/Text'
 import { colors } from '@/styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { FilterTaskDto } from '@/types/api/tasks'
+import { useQuery } from '@tanstack/react-query'
+import { tasksApi } from '@/api/tasks.api'
 
-export function AIAssistor() {
+interface AIAssistorProps {
+  filters: FilterTaskDto
+}
+
+export function AIAssistor({ filters }: AIAssistorProps) {
   const { toast } = useToast()
-  const tasks = useSelector((state: RootState) => state.tasks.tasks)
+  const { uid } = getUserCredentials()
   const [prompt, setPrompt] = useState<string>('')
   const [suggestions, setSuggestions] = useState<string>('')
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [responseIsLoading, setResponseIsLoading] = useState<boolean>(false)
 
-  const canGenerateSuggestions = tasks.length > 1
+  const {
+    isLoading,
+    isError,
+    data: tasks,
+    error
+  } = useQuery({
+    queryKey: ['tasks', uid, filters],
+    queryFn: async () => {
+      if (!uid) {
+        throw new Error('Unathorized user.')
+      }
+      const data = await tasksApi.getFilteredTasks(uid, filters)
+      return data
+    },
+    enabled: !!uid
+  })
 
   useEffect(() => {
+    if (!tasks) {
+      setPrompt('')
+      return
+    }
     const newPrompt = buildPrompt(tasks)
     setPrompt(newPrompt)
   }, [tasks])
@@ -27,7 +51,7 @@ export function AIAssistor() {
   // Call the API to get AI suggestions
   const submitRequest = async () => {
     try {
-      setIsLoading(true)
+      setResponseIsLoading(true)
       const response = await llmApi.getSuggestions(tasks)
       setSuggestions(response)
     } catch (error) {
@@ -36,7 +60,7 @@ export function AIAssistor() {
         description: error instanceof Error ? error.message : 'An error occurred during focus timer creation or update.'
       })
     } finally {
-      setIsLoading(false)
+      setResponseIsLoading(false)
     }
   }
 
@@ -54,11 +78,17 @@ export function AIAssistor() {
             />
           </div>
           <div
-            className={`flex items-center justify-start gap-x-2 rounded-b-md ${canGenerateSuggestions ? 'cursor-pointer bg-purple-700 text-white hover:brightness-125' : 'bg-gray-200 text-black'} px-3 py-2`}
-            onClick={canGenerateSuggestions ? submitRequest : () => {}}
+            className={`flex items-center justify-start gap-x-2 rounded-b-md ${tasks ? 'cursor-pointer bg-purple-700 text-white hover:brightness-125' : 'bg-gray-200 text-black'} px-3 py-2`}
+            onClick={tasks ? submitRequest : () => {}}
           >
-            <span className='font-medium'>Generate Suggestions</span>
-            <FontAwesomeIcon icon={faArrowDown} />
+            {isLoading && <LoadingIndicator />}
+            {isError && <div className='text-red-500'>Error: {error?.message || 'Failed to load tasks.'}</div>}
+            {!isLoading && !isError && tasks && (
+              <div>
+                <span className='font-medium'>Generate Suggestions</span>
+                <FontAwesomeIcon icon={faArrowDown} />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -66,8 +96,8 @@ export function AIAssistor() {
         <ToolLabel label='LLM Response' />
         <div className='flex h-full flex-col rounded-md border border-gray-300 bg-gray-100'>
           <div className='grow overflow-y-auto p-3'>
-            {isLoading ? (
-              <Loader />
+            {responseIsLoading ? (
+              <LoadingIndicator />
             ) : (
               <p
                 className='whitespace-pre-line text-left'

@@ -1,55 +1,38 @@
+import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { TaskFilterModule, TaskListModule } from '@/components/TaskManagement'
 import { colors } from '@/styles'
 import { faCheckCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons'
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '@/store'
 import { getUserCredentials } from '@/utils'
 import { tasksApi } from '@/api/tasks.api'
 import { FilterTaskDto } from '@/types/api/tasks'
-import { setTasks } from '@/store/reducers/taskSlice'
 import { AIAssistor } from '@/components/AIAssistor'
+import { useQuery } from '@tanstack/react-query'
+import { TaskListQueryProvider } from '@/context/Task'
 
-export function TaskManagementPage() {
-  const dispatch = useDispatch<AppDispatch>()
-  const tasks = useSelector((state: RootState) => state.tasks.tasks)
+function TaskManagementPage() {
+  const { uid } = getUserCredentials()
+  const [filters, setFilters] = useState<FilterTaskDto>({})
 
-  useEffect(() => {
-    const { uid } = getUserCredentials()
-
-    // If uid is null or not found, stop the process and show an error
-    if (!uid) {
-      return
-    }
-
-    // Fetch all tasks when the component first loads
-    const fetchTasks = async () => {
-      try {
-        const fetchedTasks = await tasksApi.getFilteredTasks(uid, {})
-        dispatch(setTasks(fetchedTasks))
-      } catch {
-        console.log('Error: Failed to fetch tasks.')
+  const {
+    isLoading,
+    isError,
+    data: tasks = [],
+    error
+  } = useQuery({
+    queryKey: ['tasks', uid, filters],
+    queryFn: async () => {
+      if (!uid) {
+        throw new Error('Unathorized user.')
       }
-    }
+      const data = await tasksApi.getFilteredTasks(uid, filters)
+      return data
+    },
+    enabled: !!uid
+  })
 
-    fetchTasks()
-  }, [dispatch])
-
-  // This function will be triggered when filters are applied
-  const handleFilterChange = async (filters: FilterTaskDto) => {
-    const { uid } = getUserCredentials()
-
-    if (!uid) {
-      return
-    }
-
-    try {
-      const filteredTasks = await tasksApi.getFilteredTasks(uid, filters)
-      dispatch(setTasks(filteredTasks))
-    } catch {
-      console.log('Error: Failed to filter tasks.')
-    }
+  const handleFilterChange = (filters: FilterTaskDto) => {
+    setFilters(filters)
   }
 
   return (
@@ -69,7 +52,9 @@ export function TaskManagementPage() {
           />
           {/* Task List */}
           <div className='h-full max-h-full w-full rounded-xl border border-gray-200 bg-white shadow-sm'>
-            <TaskListModule tasks={tasks} />
+            <TaskListQueryProvider isLoading={isLoading} isError={isError} error={error}>
+              <TaskListModule tasks={tasks} />
+            </TaskListQueryProvider>
           </div>
         </div>
         {/*Task Management Section */}
@@ -81,10 +66,12 @@ export function TaskManagementPage() {
             </div>
           </div>
           <div className='h-[calc(100vh-156px)] rounded-xl border border-gray-200 bg-white shadow-sm'>
-            <AIAssistor />
+            <AIAssistor filters={filters} />
           </div>
         </div>
       </div>
     </div>
   )
 }
+
+export default TaskManagementPage

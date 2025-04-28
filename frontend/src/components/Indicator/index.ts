@@ -1,2 +1,2 @@
 export * from './TextFieldIndicator'
-export * from './LoaderIndicator'
+export * from './LoadingIndicator'

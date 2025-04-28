@@ -1,6 +1,6 @@
 import './Loader.css'
 
-export function Loader() {
+export function LoadingIndicator() {
   return (
     <div className='loader-container'>
       <div className='loader'></div>

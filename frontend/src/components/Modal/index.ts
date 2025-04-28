@@ -1,5 +1,4 @@
 export * from './LoginModal'
 export * from './RegistrationModal'
 export * from './FocusTimerModal'
-export * from './CreateTaskModal'
-export * from './EditTaskModal'
+export * from './TaskModal'

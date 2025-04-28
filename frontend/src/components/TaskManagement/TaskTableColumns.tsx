@@ -1,15 +1,14 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { Task } from '@/types/schemas'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowsUpDown, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
+import { faArrowsUpDown, faEllipsisVertical, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { formatDateWithTime, taskSortOrder } from '@/utils'
 import { TaskBadge } from '@/components/Badge'
 import { taskPriorityLabels, taskStatusLabels } from '@/types/enum/taskLabel'
 import { colors, priorityColors, statusColors } from '@/styles'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { faPenToSquare, faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { EditTaskModal } from '@/components/Modal'
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
+import { TaskModal } from '@/components/Modal'
 
 interface TaskTableColumnsProps {
   handleDeleteTask: (taskId: string) => void
@@ -49,7 +48,7 @@ export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): C
       const taskPriority: Task['priority'] = row.getValue('priority')
       return (
         <div className='flex w-full justify-center'>
-          <div className='min-w-24 max-w-24'>
+          <div className='min-w-20 max-w-24'>
             <TaskBadge
               label={taskPriorityLabels[taskPriority]}
               textColor={priorityColors[taskPriority].textColor}
@@ -81,7 +80,7 @@ export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): C
       const taskStatus: Task['status'] = row.getValue('status')
       return (
         <div className='flex w-full justify-center'>
-          <div className='min-w-24 max-w-24'>
+          <div className='min-w-20 max-w-24'>
             <TaskBadge
               label={taskStatusLabels[taskStatus]}
               textColor={statusColors[taskStatus].textColor}
@@ -136,8 +135,10 @@ export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): C
                     Task Actions
                   </span>
                 </div>
-                <Dialog>
-                  <DialogTrigger asChild>
+                <TaskModal
+                  action='update'
+                  initialTask={task}
+                  triggerComponent={
                     <div
                       className='flex w-full cursor-pointer gap-4 px-4 py-2 hover:bg-gray-200'
                       style={{ color: colors.text_primary }}
@@ -145,11 +146,8 @@ export const taskTableColumns = ({ handleDeleteTask }: TaskTableColumnsProps): C
                       <FontAwesomeIcon icon={faPenToSquare} size='lg' />
                       <span>Edit</span>
                     </div>
-                  </DialogTrigger>
-                  <DialogContent className='sm:max-w-[540px]'>
-                    <EditTaskModal initialTask={task} />
-                  </DialogContent>
-                </Dialog>
+                  }
+                />
                 <div
                   className='flex w-full cursor-pointer gap-4 px-4 py-2 hover:bg-gray-200'
                   style={{ color: colors.text_primary }}

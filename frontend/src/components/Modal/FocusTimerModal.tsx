@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Loader } from '@/components/Indicator'
+import { LoadingIndicator } from '@/components/Indicator'
 import { Task } from '@/types/schemas'
 import { tasksApi } from '@/api/tasks.api'
 import { useToast } from '@/hooks/use-toast'
@@ -371,7 +371,7 @@ export function FocusTimerModal() {
             </div>
           </>
         )}
-        {isLoading && <Loader />}
+        {isLoading && <LoadingIndicator />}
       </div>
       <VisuallyHidden.Root>
         <DialogHeader>

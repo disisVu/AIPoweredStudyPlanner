@@ -18,6 +18,7 @@ import { FocusTimerModal } from '@/components/Modal'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../store'
 import { setCurrentEventId } from '../../store/reducers/sessionSlice'
+import { useQuery } from '@tanstack/react-query'
 
 const DnDCalendar = withDragAndDrop<Event>(Calendar)
 
@@ -29,6 +30,24 @@ interface CalendarViewProps {
 export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProps) {
   // Get user ID
   const [userId, setUserId] = useState<string | null>()
+  const { uid } = getUserCredentials()
+
+  const {
+    isLoading,
+    isError,
+    data: events,
+    error
+  } = useQuery({
+    queryKey: ['events', uid],
+    queryFn: async () => {
+      if (!uid) {
+        throw new Error('Unauthorized user.')
+      }
+      const data = await eventsApi.getEventsByUserId(uid)
+      return data
+    },
+    enabled: !!uid
+  })
 
   useEffect(() => {
     if (!userId) {

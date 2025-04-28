@@ -11,12 +11,11 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TaskTablePagination } from '@/components/TaskManagement'
 import { colors } from '@/styles'
+import { TaskModal } from '@/components/Modal'
+import { useTaskListQueryContext } from '@/context/Task'
+import { LoadingIndicator } from '@/components/Indicator'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { Tooltip } from '@radix-ui/react-tooltip'
-import { TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { CreateTaskModal } from '@/components/Modal'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -24,10 +23,12 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+  const taskListQueryContext = useTaskListQueryContext()
   const [sorting, setSorting] = useState<SortingState>([])
+  const dataIsAvailable: boolean = !taskListQueryContext.isLoading && !taskListQueryContext.isError
 
   const table = useReactTable({
-    data,
+    data: data,
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -44,29 +45,17 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
       <div className='h-12 rounded-t-lg border-b border-gray-200 px-4 py-2'>
         <div className='grid h-8 grid-cols-12 items-center gap-4'>
           <span className='col-span-10 text-left text-sm font-medium' style={{ color: colors.text_secondary }}>
-            Results: {data.length}
+            Results: {dataIsAvailable ? data.length : '0'}
           </span>
           <div className='col-span-2 flex items-center justify-end'>
-            <Dialog>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
-                    <div
-                      className='flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 hover:border-gray-200 hover:bg-gray-200'
-                      style={{ color: colors.text_primary }}
-                    >
-                      <FontAwesomeIcon icon={faPlus} className='pb-[2px]' />
-                    </div>
-                  </DialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent side='bottom' align='center'>
-                  Create task
-                </TooltipContent>
-                <DialogContent className='sm:max-w-[540px]'>
-                  <CreateTaskModal />
-                </DialogContent>
-              </Tooltip>
-            </Dialog>
+            <TaskModal
+              action='add'
+              triggerComponent={
+                <div className='flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 hover:border-gray-200 hover:bg-gray-200'>
+                  <FontAwesomeIcon icon={faPlus} />
+                </div>
+              }
+            />
           </div>
         </div>
       </div>
@@ -93,7 +82,19 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {taskListQueryContext.isLoading ? (
+            // Display loading rows while data is being fetched
+            [...Array(1)].map((_, index) => (
+              <TableRow key={index}>
+                {columns.map((_column, colIndex) => (
+                  <TableCell key={colIndex} className='animate-pulse bg-gray-200 py-[10px]'>
+                    <LoadingIndicator />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : table.getRowModel().rows?.length ? (
+            // Display actual rows when data is available
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                 {row.getVisibleCells().map((cell) => (
@@ -111,6 +112,7 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
               </TableRow>
             ))
           ) : (
+            // Display "No results" message when no data is available
             <TableRow>
               <TableCell colSpan={columns.length} className='h-24 py-[10px] text-center'>
                 No results.

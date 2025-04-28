@@ -1,5 +1,7 @@
 import { RegistrationModal } from '@/components/Modal'
 
-export function RegistrationPage() {
+function RegistrationPage() {
   return <RegistrationModal />
 }
+
+export default RegistrationPage

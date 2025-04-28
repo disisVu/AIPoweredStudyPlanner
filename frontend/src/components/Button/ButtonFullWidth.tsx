@@ -1,4 +1,4 @@
-import { Loader } from '@/components/Indicator'
+import { LoadingIndicator } from '@/components/Indicator'
 import { colors } from '@/styles/index'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -45,7 +45,7 @@ export function ButtonFullWidth({
       }
     >
       {isLoading ? (
-        <Loader />
+        <LoadingIndicator />
       ) : (
         <div className='grid w-full grid-cols-12'>
           <div className='col-span-1 max-w-fit'>{startAdornment && <img src={startAdornment} alt='' />}</div>

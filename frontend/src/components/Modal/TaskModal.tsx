@@ -1,108 +1,115 @@
 import { Button } from '@/components/ui/button'
-import { DialogClose, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Task } from '@/types/schemas'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { UpdateTaskDto } from '@/types/api/tasks'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { tasksApi } from '@/api/tasks.api'
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from '@/store'
-import { updateTask } from '@/store/reducers/taskSlice'
-import { Task } from '@/types/schemas'
-import { DateTimePicker } from '@/components/Input'
-import { faPenToSquare } from '@fortawesome/free-regular-svg-icons'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { colors } from '@/styles'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { DateTimePicker } from '@/components/Input'
+import { CreateTaskDto, UpdateTaskDto } from '@/types/api/tasks'
+import React, { useState } from 'react'
 import { getUserCredentials } from '@/utils'
 
-interface EditTaskModalProps {
-  initialTask: Task
+interface TaskModalProps {
+  action: 'add' | 'update'
+  initialTask?: Task
+  onClose?: () => void
+  triggerComponent: React.ReactNode
 }
 
-export function EditTaskModal({ initialTask }: EditTaskModalProps) {
-  const dispatch = useDispatch<AppDispatch>()
+export function TaskModal({ action, initialTask, onClose, triggerComponent }: TaskModalProps) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const { uid } = getUserCredentials()
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
 
-  const updateTaskMutation = useMutation({
-    mutationFn: (data: UpdateTaskDto) => tasksApi.updateTask(initialTask._id!, data),
-    onSuccess: (updatedTask: Task) => {
-      dispatch(updateTask(updatedTask))
-      toast({
-        title: 'Task updated successfully.',
-        description: 'Your task has been updated.'
-      })
-    }
-  })
-
-  const defaultValues: UpdateTaskDto = {
-    name: initialTask.name,
-    description: initialTask.description,
-    priority: initialTask.priority,
-    status: initialTask.status,
-    estimatedTime: initialTask.estimatedTime,
-    deadline: new Date(initialTask.deadline),
-    isDistributed: initialTask.isDistributed
-  }
+  const defaultValues: CreateTaskDto | UpdateTaskDto =
+    action === 'add'
+      ? {
+          userId: uid || '',
+          name: '',
+          description: '',
+          priority: 'M',
+          status: 'T',
+          estimatedTime: 1,
+          deadline: new Date(),
+          isDistributed: false
+        }
+      : {
+          name: initialTask?.name || '',
+          description: initialTask?.description || '',
+          priority: initialTask?.priority || 'M',
+          status: initialTask?.status || 'T',
+          estimatedTime: initialTask?.estimatedTime || 1,
+          deadline: new Date(initialTask?.deadline || new Date()),
+          isDistributed: initialTask?.isDistributed || false
+        }
 
   const {
     control,
     handleSubmit,
     formState: { isValid }
-  } = useForm<UpdateTaskDto>({
+  } = useForm<CreateTaskDto | UpdateTaskDto>({
     defaultValues,
     mode: 'onChange'
   })
 
-  const onSubmit: SubmitHandler<UpdateTaskDto> = async (data: UpdateTaskDto) => {
-    if (!uid) {
+  const mutation = useMutation({
+    mutationKey: action === 'add' ? ['createTask'] : ['updateTask'],
+    mutationFn: (data: CreateTaskDto | UpdateTaskDto) => {
+      if (action === 'add') {
+        return tasksApi.createTask(data as CreateTaskDto)
+      } else if (initialTask?._id) {
+        return tasksApi.updateTask(initialTask._id, data as UpdateTaskDto)
+      } else {
+        throw new Error('Task ID is missing for update action.')
+      }
+    },
+    onSuccess: () => {
       toast({
-        title: 'Failed to update task.',
-        description: 'An error occured while updating task.'
+        title: action === 'add' ? 'Task created successfully.' : 'Task updated successfully.',
+        description: action === 'add' ? 'Your task has been created.' : 'Your task has been updated.'
       })
-      return
+      queryClient.invalidateQueries({
+        queryKey: ['tasks'],
+        exact: false,
+        refetchType: 'active'
+      })
+      setDialogOpen(false)
+      onClose?.()
+    },
+    onError: (error: Error) => {
+      toast({
+        title: action === 'add' ? 'Failed to create task.' : 'Failed to update task.',
+        description: error.message || 'An error occurred.'
+      })
     }
-    updateTaskMutation.mutate()
-    try {
-      const updatedTask = await tasksApi.updateTask(initialTask._id!, {
-        ...data,
-        estimatedTime: data.estimatedTime! * 60 || 60
-      })
-      dispatch(updateTask(updatedTask))
-      toast({
-        title: 'Task updated successfully.',
-        description: 'Your task has been updated.'
-      })
-    } catch (error) {
-      toast({
-        title: 'Failed to update task.',
-        description: 'An error occured while updating task.'
-      })
-      console.log(error)
-    }
+  })
+
+  const onSubmit: SubmitHandler<CreateTaskDto | UpdateTaskDto> = async (data) => {
+    mutation.mutate(data)
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div
-          className='flex w-full cursor-pointer gap-4 px-4 py-2 hover:bg-gray-200'
-          style={{ color: colors.text_primary }}
-        >
-          <FontAwesomeIcon icon={faPenToSquare} size='lg' />
-          <span>Edit</span>
-        </div>
-      </DialogTrigger>
+    <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>{triggerComponent}</DialogTrigger>
       <DialogContent className='sm:max-w-[540px]'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader className='mb-4'>
-            <DialogTitle>Edit Task</DialogTitle>
+            <DialogTitle>{action === 'add' ? 'Create Task' : 'Edit Task'}</DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
           <div className='grid gap-4 py-4'>
@@ -181,6 +188,7 @@ export function EditTaskModal({ initialTask }: EditTaskModalProps) {
                     type='number'
                     id='estimatedTime'
                     value={value}
+                    min={1}
                     onChange={(e) => onChange(Number(e.target.value))}
                     className='col-span-3'
                   />
@@ -208,7 +216,7 @@ export function EditTaskModal({ initialTask }: EditTaskModalProps) {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type='submit' disabled={!isValid}>
+              <Button type='submit' disabled={!isValid || mutation.isPending}>
                 Save changes
               </Button>
             </DialogClose>

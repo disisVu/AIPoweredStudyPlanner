@@ -4,7 +4,7 @@ import { TotalTimeResponse, DailyTimeResponse, TaskStatusResponse } from '@/type
 import { getUserCredentials } from '@/utils/auth'
 import { DailyTimeChart, TaskStatusChart, TotalTimeCard } from '@/components/Analytics'
 
-export const AnalyticsDashboard: React.FC = () => {
+const AnalyticsDashboard: React.FC = () => {
   const [totalTime, setTotalTime] = useState<TotalTimeResponse | null>(null)
   const [dailyTime, setDailyTime] = useState<DailyTimeResponse | null>(null)
   const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null)
@@ -63,3 +63,5 @@ export const AnalyticsDashboard: React.FC = () => {
     </div>
   )
 }
+
+export default AnalyticsDashboard

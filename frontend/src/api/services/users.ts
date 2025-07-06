@@ -1,5 +1,5 @@
-import { axiosPrivate as api } from '@/api/api'
-import { setupInterceptors } from '@/api/apiHeader'
+import { axiosPrivate as api } from '@/api/clients/axiosPrivate'
+import { setupInterceptors } from '@/api/interceptors/authInterceptor'
 import { User } from '@/types/schemas/User'
 import { FocusTimer } from '@/types/schemas/FocusTimer'
 

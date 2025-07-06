@@ -13,7 +13,7 @@ import { Event } from './event.type'
 import { Event as ZodEvent } from '@/types/schemas'
 import { convertToDate, getUserCredentials } from '@/utils'
 import { CreateEventDto, UpdateEventDto } from '@/types/api/events'
-import { eventsApi } from '@/api/events.api'
+import { eventsApi } from '@/api/services/events'
 import { FocusTimerModal } from '@/components/Modal'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
@@ -54,7 +54,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
     enabled: !!uid
   })
 
-  const createEventMutation = useMutation({
+  const eventCreateMutation = useMutation({
     mutationKey: ['createEvent'],
     mutationFn: async (data: CreateEventDto) => {
       const createdEvent = await eventsApi.createEvent(data as CreateEventDto)
@@ -62,7 +62,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
     }
   })
 
-  const updateEventMutation = useMutation({
+  const eventUpdateMutation = useMutation({
     mutationKey: ['updateEvent'],
     mutationFn: async (data: UpdateEventDto) => {
       const { eventId, ...updateData } = data
@@ -97,7 +97,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
 
       const { taskId } = draggedEvent as Event
 
-      createEventMutation.mutate(
+      eventCreateMutation.mutate(
         {
           taskId,
           userId: uid!,
@@ -137,14 +137,14 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         }
       )
     },
-    [createEventMutation, draggedEvent, queryClient, setDraggedEvent, uid]
+    [eventCreateMutation, draggedEvent, queryClient, setDraggedEvent, uid]
   )
 
   // Move an event to a new position
   const moveEvent = useCallback(
     async ({ event, start, end, isAllDay: droppedOnAllDaySlot = false }: EventInteractionArgs<Event>) => {
       // Update the event on the server
-      updateEventMutation.mutate(
+      eventUpdateMutation.mutate(
         {
           eventId: event._id,
           start: convertToDate(start),
@@ -176,13 +176,13 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         }
       )
     },
-    [updateEventMutation]
+    [eventUpdateMutation]
   )
 
   // Resize an event
   const resizeEvent = useCallback(
     async ({ event, start, end }: EventInteractionArgs<Event>) => {
-      updateEventMutation.mutate(
+      eventUpdateMutation.mutate(
         {
           eventId: event._id,
           start: convertToDate(start),
@@ -213,7 +213,7 @@ export function CalendarView({ draggedEvent, setDraggedEvent }: CalendarViewProp
         }
       )
     },
-    [updateEventMutation]
+    [eventUpdateMutation]
   )
 
   // Default date for the calendar

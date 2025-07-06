@@ -1,5 +1,5 @@
-import { axiosPrivate as api } from '@/api/api'
-import { setupInterceptors } from '@/api/apiHeader'
+import { axiosPrivate as api } from '@/api/clients/axiosPrivate'
+import { setupInterceptors } from '@/api/interceptors/authInterceptor'
 import { Task } from '@/types/schemas/Task'
 import { CreateTaskDto, FilterTaskDto, UpdateTaskDto } from '@/types/api/tasks'
 

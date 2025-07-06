@@ -11,21 +11,25 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TaskTablePagination } from '@/components/TaskManagement'
 import { colors } from '@/styles'
-import { TaskModal } from '@/components/Modal'
 import { useTaskListQueryContext } from '@/context/Task'
 import { LoadingIndicator } from '@/components/Indicator'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { AppDispatch } from '@/store'
+import { useDispatch } from 'react-redux'
+import { setTaskModalAction } from '@/store/reducers/taskSlice'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  setModalOpen: (isModalOpen: boolean) => void
 }
 
-export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function TaskDataTable<TData, TValue>({ columns, data, setModalOpen }: DataTableProps<TData, TValue>) {
   const taskListQueryContext = useTaskListQueryContext()
   const [sorting, setSorting] = useState<SortingState>([])
   const dataIsAvailable: boolean = !taskListQueryContext.isLoading && !taskListQueryContext.isError
+  const dispatch = useDispatch<AppDispatch>()
 
   const table = useReactTable({
     data: data,
@@ -39,6 +43,11 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
     }
   })
 
+  function openCreateTaskModal() {
+    dispatch(setTaskModalAction('add'))
+    setModalOpen(true)
+  }
+
   return (
     <div className='flex h-full max-h-full flex-col rounded-md border-t'>
       {/* Header Section */}
@@ -48,14 +57,12 @@ export function TaskDataTable<TData, TValue>({ columns, data }: DataTableProps<T
             Results: {dataIsAvailable ? data.length : '0'}
           </span>
           <div className='col-span-2 flex items-center justify-end'>
-            <TaskModal
-              action='add'
-              triggerComponent={
-                <div className='flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 hover:border-gray-200 hover:bg-gray-200'>
-                  <FontAwesomeIcon icon={faPlus} />
-                </div>
-              }
-            />
+            <div
+              className='flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 hover:border-gray-200 hover:bg-gray-200'
+              onClick={openCreateTaskModal}
+            >
+              <FontAwesomeIcon icon={faPlus} />
+            </div>
           </div>
         </div>
       </div>

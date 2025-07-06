@@ -4,7 +4,7 @@ import { TaskFilterModule, TaskListModule } from '@/components/TaskManagement'
 import { colors } from '@/styles'
 import { faCheckCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons'
 import { getUserCredentials } from '@/utils'
-import { tasksApi } from '@/api/tasks.api'
+import { tasksApi } from '@/api/services/tasks'
 import { FilterTaskDto } from '@/types/api/tasks'
 import { AIAssistor } from '@/components/AIAssistor'
 import { useQuery } from '@tanstack/react-query'
@@ -27,8 +27,7 @@ function TaskManagementPage() {
       }
       const data = await tasksApi.getFilteredTasks(uid, filters)
       return data
-    },
-    enabled: !!uid
+    }
   })
 
   const handleFilterChange = (filters: FilterTaskDto) => {

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { colors, priorityColors, statusColors } from '@/styles'
 import { Task } from '@/types/schemas/Task'
-import { tasksApi } from '@/api/tasks.api'
+import { tasksApi } from '@/api/services/tasks'
 import { formatDate, getUserCredentials } from '@/utils'
 import { TaskBadge } from '@/components/Badge'
 import { Event } from '@/components/Calendar/event.type'
@@ -29,8 +29,7 @@ export function TaskPanel({ setDraggedEvent }: TaskPanelProps) {
       }
       const data = await tasksApi.getUndistributedTasksByUserId(uid)
       return data
-    },
-    enabled: !!uid
+    }
   })
 
   // Handle drag start and set the dragged event

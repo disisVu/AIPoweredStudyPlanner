@@ -6,7 +6,7 @@ import { Collapsible } from '@/components/ui/collapsible'
 import { NavBar } from '@/components/Header'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store'
-import { usersApi } from '@/api/users.api'
+import { usersApi } from '@/api/services/users'
 import { setCurrentEventId, setTimerIsRunning } from '@/store/reducers/sessionSlice'
 import { getUserCredentials } from '@/utils'
 

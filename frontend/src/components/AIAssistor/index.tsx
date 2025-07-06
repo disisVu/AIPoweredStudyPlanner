@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { llmApi } from '@/api/apiLLM'
+import { llmApi } from '@/api/services/AI/LLM.api'
 import { LoadingIndicator } from '@/components/Indicator'
 import { useToast } from '@/hooks/use-toast'
 import { buildPrompt, formatTextToHTML, getUserCredentials } from '@/utils'
@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { FilterTaskDto } from '@/types/api/tasks'
 import { useQuery } from '@tanstack/react-query'
-import { tasksApi } from '@/api/tasks.api'
+import { tasksApi } from '@/api/services/tasks'
 
 interface AIAssistorProps {
   filters: FilterTaskDto

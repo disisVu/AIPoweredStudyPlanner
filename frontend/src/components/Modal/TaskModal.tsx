@@ -6,35 +6,36 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog'
-import { Task } from '@/types/schemas'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { tasksApi } from '@/api/tasks.api'
+import { tasksApi } from '@/api/services/tasks'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { DateTimePicker } from '@/components/Input'
 import { CreateTaskDto, UpdateTaskDto } from '@/types/api/tasks'
-import React, { useState } from 'react'
+import { memo } from 'react'
 import { getUserCredentials } from '@/utils'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
 
 interface TaskModalProps {
-  action: 'add' | 'update'
-  initialTask?: Task
-  onClose?: () => void
-  triggerComponent: React.ReactNode
+  isModalOpen: boolean
+  setModalOpen: (isModalOpen: boolean) => void
 }
 
-export function TaskModal({ action, initialTask, onClose, triggerComponent }: TaskModalProps) {
+const TaskModal = memo(function TaskModal({ isModalOpen, setModalOpen }: TaskModalProps) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const { uid } = getUserCredentials()
-  const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
+  const action = useSelector((state: RootState) => state.tasks.taskModalAction)
+  const initialTask = useSelector((state: RootState) => state.tasks.selectedTask)
+
+  console.log('Initial Task:', initialTask)
 
   const defaultValues: CreateTaskDto | UpdateTaskDto =
     action === 'add'
@@ -57,9 +58,6 @@ export function TaskModal({ action, initialTask, onClose, triggerComponent }: Ta
           deadline: new Date(initialTask?.deadline || new Date()),
           isDistributed: initialTask?.isDistributed || false
         }
-
-  console.log('Initial Task:', initialTask)
-  console.log('Default Values:', defaultValues)
 
   const {
     control,
@@ -92,8 +90,6 @@ export function TaskModal({ action, initialTask, onClose, triggerComponent }: Ta
         exact: false,
         refetchType: 'active'
       })
-      setDialogOpen(false)
-      onClose?.()
     },
     onError: (error: Error) => {
       toast({
@@ -109,8 +105,7 @@ export function TaskModal({ action, initialTask, onClose, triggerComponent }: Ta
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-      {triggerComponent && <DialogTrigger asChild>{triggerComponent}</DialogTrigger>}
+    <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
       <DialogContent className='sm:max-w-[540px]'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader className='mb-4'>
@@ -230,4 +225,6 @@ export function TaskModal({ action, initialTask, onClose, triggerComponent }: Ta
       </DialogContent>
     </Dialog>
   )
-}
+})
+
+export { TaskModal }

@@ -2,11 +2,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Task } from '@/types/schemas/Task'
 
 interface TaskState {
+  selectedTask: Task | null
   tasks: Task[]
+  taskModalAction: 'add' | 'update'
 }
 
 const initialState: TaskState = {
-  tasks: []
+  selectedTask: null,
+  tasks: [],
+  taskModalAction: 'add'
 }
 
 export const taskSlice = createSlice({
@@ -35,9 +39,16 @@ export const taskSlice = createSlice({
     // Clear all tasks
     clearTasks: (state) => {
       state.tasks = []
+    },
+    setSelectedTask: (state, action: PayloadAction<Task>) => {
+      state.selectedTask = action.payload
+    },
+    setTaskModalAction: (state, action: PayloadAction<'add' | 'update'>) => {
+      state.taskModalAction = action.payload
     }
   }
 })
 
-export const { setTasks, addTask, removeTask, updateTask, clearTasks } = taskSlice.actions
+export const { setTasks, addTask, removeTask, updateTask, clearTasks, setSelectedTask, setTaskModalAction } =
+  taskSlice.actions
 export default taskSlice.reducer

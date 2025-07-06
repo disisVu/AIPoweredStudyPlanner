@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { analyticsApi } from '@/api/analytics.api'
+import { analyticsApi } from '@/api/services/analytics'
 import { TotalTimeResponse, DailyTimeResponse, TaskStatusResponse } from '@/types/api/analytics'
 import { getUserCredentials } from '@/utils/auth'
 import { DailyTimeChart, TaskStatusChart, TotalTimeCard } from '@/components/Analytics'
